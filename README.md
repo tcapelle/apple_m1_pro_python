@@ -28,4 +28,17 @@ Apple has made binaries for tensorflow 2 that supports the GPU inside the M1 pro
 Pytorch works straight out of the box, but only on CPU. There is a plan to release GPU support in the next months, follow [Soumith Chintala](https://twitter.com/soumithchintala) for up to date info on this.
 
 ## Benchmarks
-You can check some runs on this [report](http://wandb.me/m1pro)
+You can check some runs on this [report](http://wandb.me/m1pro). To run the benchmark yourself in your new macbook pro:
+- setup the enviroment:
+```bash
+conda env create --file=tf_apple.yml
+conda activate tf
+```
+- You will need a [wandb][wandb.ai] account, follow instructions once the script is launched.
+- Run the training:
+
+```bash
+python scripts/keras_wandb.py
+```
+
+I also provide a [pytorch training script](scripts/pytorch_wandb.py), but you will need to install pytorch first.
