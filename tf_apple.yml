@@ -1,10 +1,11 @@
 name: tf
-
+channels:
+    - apple
 dependencies:
     - python<3.10
     - pip>=19.0
     - jupyter
-    - apple::tensorflow-deps
+    - tensorflow-deps
     - scikit-learn
     - scipy
     - pandas
@@ -15,11 +16,7 @@ dependencies:
     - requests
     - h5py
     - pyyaml
-    - flask
-    - boto3
     - pip:
         - tensorflow-macos
         - tensorflow-metal
-        - bayesian-optimization
-        - gym
-        - kaggle
+        - wandb
