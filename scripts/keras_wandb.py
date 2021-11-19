@@ -1,6 +1,8 @@
 import os
 import random
 
+import wandb
+from wandb.keras import WandbCallback
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -11,6 +13,7 @@ from tensorflow.keras.datasets import cifar10
 
 PROJECT = 'apple_m1_pro'
 GROUP = 'keras'
+JOB_TYPE = 'M1Pro'
 
 # Set the random seeds
 os.environ['TF_CUDNN_DETERMINISTIC'] = '1' 
@@ -19,8 +22,7 @@ np.random.seed(hash("improves reproducibility") % 2**32 - 1)
 tf.random.set_seed(hash("by removing stochasticity") % 2**32 - 1)
 
 
-import wandb
-from wandb.keras import WandbCallback
+
 
 wandb.login()
 
@@ -28,8 +30,7 @@ wandb.login()
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
 # Subsetting train data and normalizing to [0., 1.]
-x_train, x_test = x_train[::5] / 255., x_test / 255.
-y_train = y_train[::5]
+x_train, x_test = x_train / 255., x_test / 255.
 
 CLASS_NAMES = ["airplane", "automobile", "bird", "cat",
                "deer", "dog", "frog", "horse", "ship", "truck"]
@@ -62,6 +63,7 @@ def Model():
 # Initialize wandb with your project name
 run = wandb.init(project=PROJECT,
                  group=GROUP,
+                 job_type=JOB_TYPE,
                  config={  # and include hyperparameters and metadata
                      "learning_rate": 0.005,
                      "epochs": 5,
