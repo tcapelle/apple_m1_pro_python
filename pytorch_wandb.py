@@ -49,12 +49,14 @@ def get_data(train=True, sample=True):
     ds = torchvision.datasets.CIFAR10(
         root="./data", train=train, download=True, transform=transform)
 
-    if sample:
+    if sample and train:
         ds.data = ds.data[::5]
 
     loader = torch.utils.data.DataLoader(
         ds, batch_size=config.batch_size*(2-train), shuffle=train, num_workers=2)
     return loader
+
+train_loader, test_loader = get_data(True), get_data(False)
 
 train_loader = get_data(True)
 test_loader = get_data(False)
@@ -86,23 +88,29 @@ model = nn.Sequential(
 ).to(device)
 
 class Learner:
-    
+    "A Wrapper around model and data"
     def __init__(self, train_loader, test_loader, model, criterion):
         self.train_loader = train_loader
         self.test_loader = test_loader
         self.model = model.to(device)
         self.criterion = criterion
+        self.mb = None
+        self.batch_ct = 0
+        self.example_ct = 0
         
         
-    def one_batch(self, images, labels):
+    def one_batch_train(self, images, labels):
+        "Do one batch train"
         images, labels = images.to(device), labels.to(device)
 
+        # zero the parameter gradients
+        self.optimizer.zero_grad()
+        
         # Forward pass ➡
         outputs = self.model(images)
         loss = self.criterion(outputs, labels)
 
         # Backward pass ⬅
-        self.optimizer.zero_grad()
         loss.backward()
 
         # Step with optimizer
@@ -111,12 +119,10 @@ class Learner:
         return loss
     
     def one_epoch_train(self):
-        # tell wandb to watch what the model gets up to: gradients, weights, and more!
-        
-        
+        "Do one epoch train"
         self.model.train()
         for images, labels in progress_bar(self.train_loader, parent=self.mb):
-            loss = self.one_batch(images, labels)
+            loss = self.one_batch_train(images, labels)
             self.batch_ct += 1
             self.example_ct += len(labels)
     
@@ -128,6 +134,7 @@ class Learner:
     
     
     def one_batch_test(self, images, labels):
+        "Do one batch test"
         images, labels = images.to(device), labels.to(device)
 
         # Forward pass ➡
@@ -153,14 +160,15 @@ class Learner:
         
         wandb.log({"test_accuracy": correct_total / len(test_loader)})
 
-
+    
+    def save(self):
+        # save and log last mdoel to wandb
+        torch.save(self.model.state_dict(), 'model.pt')
+        wandb.save('model.pt')
     
     def fit(self, epochs, lr=config.lr):
         
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
-        
-        self.batch_ct = 0
-        self.example_ct = 0
         self.mb = master_bar(range(epochs))
         
         wandb.watch(self.model, self.criterion, log='all', log_freq=10)
@@ -169,9 +177,7 @@ class Learner:
             self.one_epoch_train()
             self.one_epoch_test()
         
-        #save and log last mdoel to wandb
-        torch.save(model, 'model.pt')
-        wandb.save('model.pt')
+        self.save()
             
 
 criterion = nn.CrossEntropyLoss()

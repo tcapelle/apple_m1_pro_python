@@ -11,6 +11,7 @@ from tensorflow.keras.datasets import cifar10
 
 PROJECT = 'apple_m1_pro'
 ENTITY  = 'tcapelle'
+GROUP = 'keras'
 
 # Set the random seeds
 os.environ['TF_CUDNN_DETERMINISTIC'] = '1' 
@@ -61,11 +62,12 @@ def Model():
 
 # Initialize wandb with your project name
 run = wandb.init(project=PROJECT,
-                 entity=ENTITY,s
+                 entity=ENTITY,
+                 group=GROUP,
                  config={  # and include hyperparameters and metadata
                      "learning_rate": 0.005,
                      "epochs": 5,
-                     "batch_size": 1024,
+                     "batch_size": 128,
                      "loss_function": "sparse_categorical_crossentropy",
                      "architecture": "CNN",
                      "dataset": "CIFAR-10"
@@ -96,44 +98,5 @@ print('Test Error Rate: ', round((1 - accuracy) * 100, 2))
 
 # With wandb.log, we can easily pass in metrics as key-value pairs.
 wandb.log({'Test Error Rate': round((1 - accuracy) * 100, 2)})
-
-run.finish()
-
-
-# Initialize wandb with your project name
-run = wandb.init(project=PROJECT,
-                 entity=ENTITY,
-                 config={  # and include hyperparameters and metadata
-                     "learning_rate": 0.001,
-                     "epochs": 5,
-                     "batch_size": 32,
-                     "loss_function": "sparse_categorical_crossentropy",
-                     "architecture": "CNN",
-                     "dataset": "CIFAR-10"
-                 })
-config = wandb.config  # We'll use this to configure our experiment
-
-# Initialize model like you usually do.
-tf.keras.backend.clear_session()
-model = Model()
-model.summary()
-
-# Compile model like you usually do.
-optimizer = tf.keras.optimizers.Adam(config.learning_rate) 
-model.compile(optimizer, config.loss_function, metrics=['acc'])
-
-
-# We focus on a subset of images, since this is for human review
-val_images, val_labels = x_test[:32], y_test[:32]
-
-# Our beloved model.fit returns
-# By passing arguments to WandbCallback, we change its behavior
-_ = model.fit(x_train, y_train,
-              epochs=config.epochs, 
-              batch_size=config.batch_size,
-              validation_data=(x_test, y_test),
-              callbacks=[WandbCallback(data_type='image', 
-                                       validation_data=(val_images, val_labels), 
-                                       labels=CLASS_NAMES)])
 
 run.finish()

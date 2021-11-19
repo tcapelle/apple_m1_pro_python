@@ -1,0 +1,22 @@
+name: tf
+
+channels:
+    - conda-forge
+
+dependencies:
+    - python<3.10
+    - pip>=19.0
+    - jupyter
+    - tensorflow>=2.6
+    - scikit-learn
+    - scipy
+    - pandas
+    - pandas-datareader
+    - matplotlib
+    - pillow
+    - tqdm
+    - requests
+    - h5py
+    - pyyaml
+    pip: 
+        - wandb
