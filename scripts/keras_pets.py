@@ -1,23 +1,22 @@
 import os
 import random
-from pathlib import Path
 import wandb
-from wandb.keras import WandbCallback
+
+from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from tensorflow.keras.datasets import cifar10
 
 
 PROJECT = 'apple_m1_pro'
 GROUP = 'keras'
-JOB_TYPE = 'M1Pro'
+JOB_TYPE = 'QuadroT1000'
 
 IMG_SIZE = 128
-BS = 64
+BS = 32 
 EPOCHS = 10
 LR = 1e-3
 
@@ -118,9 +117,8 @@ def make_model(input_shape, num_classes):
 tf.keras.backend.clear_session()
 model = make_model(input_shape=(IMG_SIZE, IMG_SIZE) + (3,), num_classes=2)
 
-
+from wandb.keras import WandbCallback
 callbacks = [
-    keras.callbacks.ModelCheckpoint("save_at_{epoch}.h5"),
     wandb.keras.WandbCallback(save_model=False)
 ]
 model.compile(
