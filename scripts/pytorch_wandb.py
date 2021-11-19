@@ -12,7 +12,6 @@ import torchvision.transforms as transforms
 from fastprogress import progress_bar, master_bar
 
 PROJECT = "apple_m1_pro"
-ENTITY = "tcapelle"
 GROUP = 'pytorch'
 
 # Ensure deterministic behavior
@@ -28,7 +27,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 wandb.login()
 
 run = wandb.init(project=PROJECT,
-                 entity=ENTITY,
                  group=GROUP, 
                  config = {
                     "lr": 0.005,

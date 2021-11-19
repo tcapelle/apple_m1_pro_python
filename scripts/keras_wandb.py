@@ -10,7 +10,6 @@ from tensorflow.keras.datasets import cifar10
 
 
 PROJECT = 'apple_m1_pro'
-ENTITY  = 'tcapelle'
 GROUP = 'keras'
 
 # Set the random seeds
@@ -62,7 +61,6 @@ def Model():
 
 # Initialize wandb with your project name
 run = wandb.init(project=PROJECT,
-                 entity=ENTITY,
                  group=GROUP,
                  config={  # and include hyperparameters and metadata
                      "learning_rate": 0.005,
