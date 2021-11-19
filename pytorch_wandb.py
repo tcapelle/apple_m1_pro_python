@@ -13,7 +13,7 @@ from fastprogress import progress_bar, master_bar
 
 PROJECT = "apple_m1_pro"
 ENTITY = "tcapelle"
-JOB_TYPE = 'pytorch'
+GROUP = 'pytorch'
 
 # Ensure deterministic behavior
 torch.backends.cudnn.deterministic = True
@@ -29,7 +29,7 @@ wandb.login()
 
 run = wandb.init(project=PROJECT,
                  entity=ENTITY,
-                 job_type=JOB_TYPE, 
+                 group=GROUP, 
                  config = {
                     "lr": 0.005,
                     "epochs": 5,
