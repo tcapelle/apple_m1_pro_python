@@ -38,7 +38,8 @@ conda activate tf
 - Run the training:
 
 ```bash
-python scripts/keras_wandb.py
+python scripts/keras_pets.py
 ```
+This script is based on an official keras example by fchollet.
 
 I also provide a [pytorch training script](scripts/pytorch_wandb.py), but you will need to install pytorch first.

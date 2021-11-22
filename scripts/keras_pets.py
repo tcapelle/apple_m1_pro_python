@@ -22,7 +22,7 @@ PROJECT = 'apple_m1_pro'
 GROUP = 'M1Pro'
 
 IMG_SIZE = 128
-BS = 32 
+BS = 32
 EPOCHS = 10
 LR = 1e-3
 
@@ -76,8 +76,11 @@ def prepare_data():
     train_ds, val_ds = get_data(dataset_dir)
 
     #speed up dataloading
-    train_ds = train_ds.prefetch(buffer_size=BS)
-    val_ds = val_ds.prefetch(buffer_size=BS)
+    # train_ds = train_ds.prefetch(buffer_size=BS)
+    # val_ds = val_ds.prefetch(buffer_size=BS)
+    
+    train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
+    val_ds = val_ds.prefetch(tf.data.AUTOTUNE)
 
     return train_ds, val_ds
 
