@@ -130,3 +130,4 @@ MNIST
 data
 *.onnx
 *.pt
+artifacts

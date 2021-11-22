@@ -1,6 +1,7 @@
 name: tf
 channels:
     - apple
+    - conda-forge
 dependencies:
     - python<3.10
     - pip>=19.0

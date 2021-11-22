@@ -6,8 +6,13 @@ The new apple silicon is pretty amazing, it is fast and very power efficient, bu
 ## Install
 
 - Install apple developer tools: Just git clone something, and the install will be triggered.
-- Install [miniconda3](https://docs.conda.io/en/latest/miniconda.html) or [miniforge](https://github.com/conda-forge/miniforge) and choose the ARM M1 binaries!!
+You have 2 options:
+  - Install [miniconda3](https://docs.conda.io/en/latest/miniconda.html): This is a small and light version of anaconda that only contains the command line iterface and no default packages.
+  - Install [miniforge](https://github.com/conda-forge/miniforge): This is a fork of miniconda that has the default channel `conda-forge` (instead of conda default), this is a good thing as almost every package you want to use is in this channel.
+> Note: As your ML packages are on `conda-forge` if you install miniconda3 you will always need to append the flag `-c conda-forge` to find/install your libraries.
 - (Optional) Install [Mamba](https://github.com/mamba-org/mamba) on top of your miniconda/miniforge install, it makes everything faster.
+
+> Note: Don't forget to choose the ARM M1 binaries
 
 ## Work
 
@@ -15,10 +20,13 @@ You can now create you environment and start working!
 
 ```bash
 #this will create an environment called wandb with python and all these pkgs
-conda create --name=wandb python wandb pandas numpy matplotlib jupyterlab
+conda create -c conda-forge --name=wandb python wandb pandas numpy matplotlib jupyterlab
 
 # or with mamba
-mamba create --name=wandb python wandb pandas numpy matplotlib jupyterlab
+mamba create -c conda-forge --name=wandb python wandb pandas numpy matplotlib jupyterlab
+
+#if you use miniforge, you can skip the channel flag 
+conda create --name=wandb python wandb pandas numpy matplotlib jupyterlab
 ```
 
 ## Apple M1 Tensorflow
@@ -40,6 +48,6 @@ conda activate tf
 ```bash
 python scripts/keras_pets.py
 ```
-This script is based on an official keras example by fchollet.
+This script is based on an official keras example by `Francois Chollet`
 
-I also provide a [pytorch training script](scripts/pytorch_wandb.py), but you will need to install pytorch first.
+> Note: I also provide a [pytorch training script](scripts/pytorch_wandb.py), but you will need to install pytorch first. It may be useful once pytroch adds GPU support.
