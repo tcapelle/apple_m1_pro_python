@@ -1,4 +1,4 @@
-name: tf
+name: tf2
 channels:
     - apple
     - conda-forge
@@ -21,3 +21,4 @@ dependencies:
         - tensorflow-macos
         - tensorflow-metal
         - wandb
+        - fastcore
