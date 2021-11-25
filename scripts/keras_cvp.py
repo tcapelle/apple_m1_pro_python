@@ -32,24 +32,32 @@ BASE_MODEL = "MobileNetV2"
 
 
 class SamplesSec(K.callbacks.Callback):
-    def __init__(self, batch_size=1, drop=5):
+    def __init__(self, epochs=1, batch_size=1, drop=5):
+        self.epochs = epochs
         self.batch_size = batch_size
         self.drop = drop
+        
 
     def on_train_begin(self, logs={}):
-        self.times = []
+        self.epoch_times = []
+        self.samples_s = 0.
 
-    def on_train_batch_begin(self, epoch, logs={}):
+    def on_epoch_begin(self, epoch, logs={}):
+        self.batch_times = []
+
+    def on_train_batch_begin(self, batch, logs={}):
         self.batch_train_start = time.time()
 
-    def on_train_batch_end(self, epoch, logs={}):
-        self.times.append(time.time() - self.batch_train_start)
+    def on_train_batch_end(self, batch, logs={}):
+        self.batch_times.append(time.time() - self.batch_train_start)
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.batch_times.sort()
+        avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
+        self.samples_s += (self.batch_size / avg_time_per_batch)
     
     def on_train_end(self, logs={}):
-        self.times.sort()
-        avg_time_per_batch = sum(self.times[0:-self.drop])/(len(self.times)-self.drop)
-        samples_s = self.batch_size / avg_time_per_batch
-        wandb.log({"samples_per_s":samples_s})
+        wandb.log({"samples_per_s": self.samples_s/self.epochs})
 
 def preprocess(image, label=None):
     """Normalize and resize images, one-hot labels""" 
@@ -131,7 +139,7 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW):
 
         cbs = [
             wandb.keras.WandbCallback(save_model=False),
-            SamplesSec(run.config.batch_size)]
+            SamplesSec(run.config.epochs, run.config.batch_size)]
 
         _ = model.fit(train_batches, epochs=run.config.epochs, validation_data=test_batches,
                             callbacks=cbs)
