@@ -1,4 +1,5 @@
 import os
+import time
 import random
 import shutil
 import tempfile
@@ -10,7 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import tensorflow.keras.backend as K
+from tensorflow import keras as K
+from tensorflow.keras.backend import count_params
 import tensorflow_datasets as tfds
 
 # Set the random seeds
@@ -28,6 +30,26 @@ N_CLASSES = 10
 DATASET = "cifar10"
 BASE_MODEL = "MobileNetV2"
 
+
+class SamplesSec(K.callbacks.Callback):
+    def __init__(self, batch_size=1, drop=5):
+        self.batch_size = batch_size
+        self.drop = drop
+
+    def on_train_begin(self, logs={}):
+        self.times = []
+
+    def on_train_batch_begin(self, epoch, logs={}):
+        self.batch_train_start = time.time()
+
+    def on_train_batch_end(self, epoch, logs={}):
+        self.times.append(time.time() - self.batch_train_start)
+    
+    def on_train_end(self, logs={}):
+        self.times.sort()
+        avg_time_per_batch = sum(self.times[0:-self.drop])/(len(self.times)-self.drop)
+        samples_s = self.batch_size / avg_time_per_batch
+        wandb.log({"samples_per_s":samples_s})
 
 def preprocess(image, label=None):
     """Normalize and resize images, one-hot labels""" 
@@ -52,8 +74,8 @@ def prepare(dataset, batch_size=None, cache=True, x=4):
 
 def trainable_params(model):
     """Count the number of trainable parameters in a Keras model"""
-    trainable_count = np.sum([K.count_params(w) for w in model.trainable_weights])
-    non_trainable_count = np.sum([K.count_params(w) for w in model.non_trainable_weights])
+    trainable_count = np.sum([count_params(w) for w in model.trainable_weights])
+    non_trainable_count = np.sum([count_params(w) for w in model.non_trainable_weights])
 
     print('Total params: {:,}'.format(trainable_count + non_trainable_count))
     print('Trainable params: {:,}'.format(trainable_count))
@@ -94,7 +116,7 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW):
         run.config.update({
         "total_params": model.count_params(),
         "trainable_params": trainable_params(model),
-        })
+        })          
         print("Model {}:".format(run.config.base_model))
         print("  trainable parameters:", run.config.trainable_params)
         print("      total parameters:", run.config.total_params)
@@ -106,8 +128,13 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW):
         # Train the model
         train_batches = prepare(train_dataset, batch_size=run.config.batch_size)
         test_batches = prepare(test_dataset, batch_size=run.config.batch_size)
+
+        cbs = [
+            wandb.keras.WandbCallback(save_model=False),
+            SamplesSec(run.config.batch_size)]
+
         _ = model.fit(train_batches, epochs=run.config.epochs, validation_data=test_batches,
-                            callbacks=[wandb.keras.WandbCallback(save_model=False)])
+                            callbacks=cbs)
         shutil.rmtree(os.path.dirname(DS_CACHE))
 
 
@@ -117,6 +144,7 @@ def main(
     hw:       Param("Name of the hardware: V100, M1, M1Pro, etc...", str)='M1Pro',
     trainable: Param("Train full model or only head", store_true)=False,
     repeat:    Param("Number of times to repeat training", int)=1,
+    speed:     Param("Bench img/sec that the GPU is capable", store_true)=False,
 ):
 
     wandb.login()
@@ -129,5 +157,9 @@ def main(
         "train_size": len(train_dataset), "test_size": len(test_dataset),
         "dataset": DATASET, "img_dim": IMG_DIM, "trainable": trainable,
     }
-    for _ in range(repeat):
+    if not speed:
+        for _ in range(repeat):
+            train(train_dataset, test_dataset, default_config, project=project, hw=hw)
+    else:
+        default_config["epochs"] = 1
         train(train_dataset, test_dataset, default_config, project=project, hw=hw)
