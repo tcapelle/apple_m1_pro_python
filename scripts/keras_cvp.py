@@ -25,7 +25,6 @@ tf.random.set_seed(hash("by removing stochasticity") % 2**32 - 1)
 PROJECT = "m1-benchmark"
 HW = 'M1Pro'
 
-IMG_DIM = 128
 N_CLASSES = 10
 DATASET = "cifar10"
 BASE_MODEL = "MobileNetV2"
@@ -101,7 +100,7 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW):
         IMG_DIM = run.config.img_dim
         N_CLASSES = run.config.num_classes
         DS_CACHE = os.path.join(tempfile.mkdtemp(), str(hash(frozenset(run.config.items()))))
-
+        
         # Setup base model to transfer from, optionally fine-tune
         base_model = getattr(tf.keras.applications, run.config.base_model)(
             input_shape=(run.config.img_dim, run.config.img_dim, 3),
@@ -135,7 +134,7 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW):
         print("  training: ", run.config.train_size)
         print("      test: ", run.config.test_size)
         print("     shape: {}\n".format((run.config.img_dim, run.config.img_dim, 3)))
-        
+        print("DS_CACHE: {}\n".format(DS_CACHE))
         # Train the model
         train_batches = prepare(train_dataset, batch_size=run.config.batch_size)
         test_batches = prepare(test_dataset, batch_size=run.config.batch_size)
@@ -157,6 +156,7 @@ def main(
     repeat:    Param("Number of times to repeat training", int)=1,
     epochs:     Param("Override epochs", int) = 10,
     bs: Param("Override Batch Size", int) = 128,
+    img_size: Param("Override Image Size", int) = 128,
 ):
 
     wandb.login()
@@ -167,7 +167,7 @@ def main(
         "batch_size": bs, "epochs": epochs, "dropout": 0.4, "base_model": BASE_MODEL, 
         "init_lr": 0.0005, "decay": 0.96, "num_classes": N_CLASSES, "hardware": hw, 
         "train_size": len(train_dataset), "test_size": len(test_dataset),
-        "dataset": DATASET, "img_dim": IMG_DIM, "trainable": trainable,
+        "dataset": DATASET, "img_dim": img_size, "trainable": trainable,
     }
     
     for _ in range(repeat):
