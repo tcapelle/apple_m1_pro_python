@@ -53,7 +53,6 @@ class SamplesSec(K.callbacks.Callback):
         self.batch_times.append(t)
 
     def on_epoch_end(self, epoch, logs={}):
-        print(f'\nepoch: {epoch}\n')
         self.batch_times.sort()
         avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
         samples_s_batch = self.batch_size / avg_time_per_batch
