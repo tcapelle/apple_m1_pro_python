@@ -144,7 +144,7 @@ def main(
     hw:       Param("Name of the hardware: V100, M1, M1Pro, etc...", str)='M1Pro',
     trainable: Param("Train full model or only head", store_true)=False,
     repeat:    Param("Number of times to repeat training", int)=1,
-    speed:     Param("Bench img/sec that the GPU is capable", store_true)=False,
+    epochs:     Param("Override epochs", int)=10,
 ):
 
     wandb.login()
@@ -152,14 +152,11 @@ def main(
     train_dataset = tfds.load(name=DATASET, as_supervised=True, split="train")
     test_dataset = tfds.load(name=DATASET, as_supervised=True, split="test")
     default_config = {
-        "batch_size": 128, "epochs": 10, "dropout": 0.4, "base_model": BASE_MODEL, 
+        "batch_size": 128, "epochs": epochs, "dropout": 0.4, "base_model": BASE_MODEL, 
         "init_lr": 0.0005, "decay": 0.96, "num_classes": N_CLASSES, "hardware": hw, 
         "train_size": len(train_dataset), "test_size": len(test_dataset),
         "dataset": DATASET, "img_dim": IMG_DIM, "trainable": trainable,
     }
-    if not speed:
-        for _ in range(repeat):
+    
+    for _ in range(repeat):
             train(train_dataset, test_dataset, default_config, project=project, hw=hw)
-    else:
-        default_config["epochs"] = 1
-        train(train_dataset, test_dataset, default_config, project=project, hw=hw)
