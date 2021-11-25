@@ -144,7 +144,8 @@ def main(
     hw:       Param("Name of the hardware: V100, M1, M1Pro, etc...", str)='M1Pro',
     trainable: Param("Train full model or only head", store_true)=False,
     repeat:    Param("Number of times to repeat training", int)=1,
-    epochs:     Param("Override epochs", int)=10,
+    epochs:     Param("Override epochs", int) = 10,
+    bs: Param("Override Batch Size", int) = 128,
 ):
 
     wandb.login()
@@ -152,7 +153,7 @@ def main(
     train_dataset = tfds.load(name=DATASET, as_supervised=True, split="train")
     test_dataset = tfds.load(name=DATASET, as_supervised=True, split="test")
     default_config = {
-        "batch_size": 128, "epochs": epochs, "dropout": 0.4, "base_model": BASE_MODEL, 
+        "batch_size": bs, "epochs": epochs, "dropout": 0.4, "base_model": BASE_MODEL, 
         "init_lr": 0.0005, "decay": 0.96, "num_classes": N_CLASSES, "hardware": hw, 
         "train_size": len(train_dataset), "test_size": len(test_dataset),
         "dataset": DATASET, "img_dim": IMG_DIM, "trainable": trainable,
