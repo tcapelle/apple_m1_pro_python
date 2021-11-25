@@ -57,7 +57,7 @@ class SamplesSec(K.callbacks.Callback):
         self.batch_times.sort()
         avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
         samples_s_batch = self.batch_size / avg_time_per_batch
-        wandb.log({"samples_per_batch": samples_s_batch}, step=epoch)
+        wandb.log({"samples_per_batch": samples_s_batch}, step=epoch+1)
         self.samples_s += samples_s_batch
     
     def on_train_end(self, logs={}):
