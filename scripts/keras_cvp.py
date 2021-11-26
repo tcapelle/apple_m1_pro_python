@@ -5,11 +5,8 @@ import shutil
 import tempfile
 
 import wandb
-from wandb.keras import WandbCallback
 from fastcore.script import *
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from tensorflow import keras as K
 from tensorflow.keras.backend import count_params
@@ -27,7 +24,8 @@ HW = 'M1Pro'
 
 N_CLASSES = 10
 DATASET = "cifar10"
-BASE_MODEL = "MobileNetV2"
+BASE_MODEL = "ResNet50"
+ENTITY = None  #replace with the team id
 
 
 class SamplesSec(K.callbacks.Callback):
@@ -71,15 +69,15 @@ def preprocess(image, label=None):
     label = tf.one_hot(label, N_CLASSES)
     return image, label
 
-def prepare(dataset, batch_size=None, cache=True, x=4):
+def prepare(dataset, batch_size=None, cache=True):
     """Preprocess, shuffle, batch (opt), cache (opt) and prefetch a tf.Dataset"""
-    ds = dataset.map(preprocess, num_parallel_calls=x)
+    ds = dataset.map(preprocess, num_parallel_calls=tf.data.AUTOTUNE)
     if cache:
         ds = ds.cache(DS_CACHE)
     ds = ds.shuffle(1024)
     if batch_size:
         ds = ds.batch(batch_size)
-    ds = ds.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+    ds = ds.prefetch(buffer_size=tf.data.AUTOTUNE)
     return ds
 
 def trainable_params(model):
@@ -95,7 +93,7 @@ def trainable_params(model):
 def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW):
     """Run transfer learning on the configured model and dataset"""
     global IMG_DIM, N_CLASSES, DS_CACHE
-    with wandb.init(project=project, group=hw, config=default_config) as run:
+    with wandb.init(project=project, group=hw, config=default_config, entity=ENTITY) as run:
         # Set global defaults when running in sweep mode
         IMG_DIM = run.config.img_dim
         N_CLASSES = run.config.num_classes
