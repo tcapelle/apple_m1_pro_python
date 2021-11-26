@@ -8,6 +8,7 @@ dependencies:
     - pip>=19.0
     - jupyter
     - tensorflow>=2.6
+    - tensorflow_datasets
     - scikit-learn
     - scipy
     - pandas
