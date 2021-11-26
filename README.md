@@ -48,8 +48,28 @@ conda activate tf
 - Run the training:
 
 ```bash
-python scripts/keras_pets.py
+python scripts/keras_cvp.py --hw "your_gpu_name" --repeat 3 --trainable
 ```
-This script is based on an official keras example by `Francois Chollet`
+This will run the training script 3 times with all parameters trainable (not finetuning)
 
 > Note: I also provide a [pytorch training script](scripts/pytorch_wandb.py), but you will need to install pytorch first. It may be useful once pytroch adds GPU support.
+
+## NGC Docker
+
+We can also run the benchmarks on linux using nvidia docker containers
+
+- Pull the container:
+
+```bash
+pull nvcr.io/nvidia/tensorflow:21.11-tf2-py3
+```
+
+- Run the containter:
+
+```bash
+docker run --gpus all -it --rm -v path_to_folder/apple_m1_pro_python:/code tensorflow:21.11-tf2-py3
+```
+
+- Once inside the container, run the benchmark.
+
+> Note: You may need `sudo` to run docker.
