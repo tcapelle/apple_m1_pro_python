@@ -27,7 +27,7 @@ HW = 'M1Pro'
 
 N_CLASSES = 10
 DATASET = "cifar10"
-BASE_MODEL = "ResNet50"
+BASE_MODEL = "MobileNetV2"
 ENTITY = None  #replace with the team id
 
 
