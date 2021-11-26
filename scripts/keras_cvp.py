@@ -1,3 +1,6 @@
+## Author: Thomas Capelle
+## Mail:   tcapelle@wandb.com
+
 import os
 import time
 import random
@@ -60,7 +63,8 @@ class SamplesSec(K.callbacks.Callback):
         wandb.log({"samples_per_s": self.samples_s/self.epochs})
 
 def preprocess(image, label=None):
-    """Normalize and resize images, one-hot labels""" 
+    """Normalize and resize images, one-hot labels
+    @wandbcode{apple_m1_pro}""" 
     if label is None:
         label = image['label']
         image = image['image']
