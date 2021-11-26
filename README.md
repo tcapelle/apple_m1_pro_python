@@ -73,3 +73,5 @@ docker run --gpus all -it --rm -v path_to_folder/apple_m1_pro_python:/code tenso
 - Once inside the container, run the benchmark.
 
 > Note: You may need `sudo` to run docker.
+
+> Note2: Using this method is substantially faster, please use the NV containers.
