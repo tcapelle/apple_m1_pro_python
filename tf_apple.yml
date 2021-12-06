@@ -7,7 +7,7 @@ dependencies:
     - pip>=19.0
     - jupyter
     - tensorflow-deps
-    - tensorflow_datasets
+    - tensorflow-datasets
     - scikit-learn
     - scipy
     - pandas
