@@ -7,7 +7,6 @@ dependencies:
     - pip>=19.0
     - jupyter
     - tensorflow-deps
-    - tensorflow_datasets
     - scikit-learn
     - scipy
     - pandas
@@ -19,6 +18,7 @@ dependencies:
     - h5py
     - pyyaml
     - pip:
+        - tensorflow_datasets
         - tensorflow-macos
         - tensorflow-metal
         - wandb
