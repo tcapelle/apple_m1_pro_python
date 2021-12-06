@@ -56,7 +56,13 @@ This will run the training script 3 times with all parameters trainable (not fin
 
 ## NGC Docker
 
-We can also run the benchmarks on linux using nvidia docker containers
+We can also run the benchmarks on linux using nvidia docker [containers](https://docs.nvidia.com/deeplearning/frameworks/user-guide/index.html#runcont):: 
+
+- Install `docker` and `nvidia-docker`:
+
+```bash
+sudo apt-get install -y docker nvidia-container-toolkit
+```
 
 - Pull the container:
 
