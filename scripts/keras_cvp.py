@@ -24,12 +24,11 @@ tf.random.set_seed(hash("by removing stochasticity") % 2**32 - 1)
 
 PROJECT = "m1-benchmark"
 HW = 'M1Pro'
+ENTITY = None  #replace with the team id
 
 N_CLASSES = 10
 DATASET = "cifar10"
 BASE_MODEL = "MobileNetV2"
-ENTITY = None  #replace with the team id
-
 
 class SamplesSec(K.callbacks.Callback):
     def __init__(self, epochs=1, batch_size=1, drop=5):
@@ -94,10 +93,10 @@ def trainable_params(model):
     print('Non-trainable params: {:,}'.format(non_trainable_count))
     return trainable_count
 
-def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW):
+def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW, team=ENTITY):
     """Run transfer learning on the configured model and dataset"""
     global IMG_DIM, N_CLASSES, DS_CACHE
-    with wandb.init(project=project, group=hw, config=default_config, entity=ENTITY) as run:
+    with wandb.init(project=project, group=hw, config=default_config, entity=team) as run:
         # Set global defaults when running in sweep mode
         IMG_DIM = run.config.img_dim
         N_CLASSES = run.config.num_classes
@@ -114,6 +113,7 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW):
         run.config.init_lr, decay_steps=run.config.train_size, decay_rate=run.config.decay)
 
         # Compile model for this dataset
+        tf.keras.backend.clear_session()
         model = tf.keras.Sequential([
         base_model,
         tf.keras.layers.GlobalAveragePooling2D(),
