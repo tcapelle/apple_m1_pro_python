@@ -15,7 +15,7 @@ TEAM    = "m1-benchmark"  #I know, same name
 MODELS = ["MobileNetV2", "ResNet50"]
 HW_NAME = 'M1Pro_14inch_GPU16'
 BS = 128
-EPOCHS = 4
+EPOCHS = 10
 REPEAT = 3
 
 
