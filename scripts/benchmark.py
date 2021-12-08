@@ -21,9 +21,9 @@ REPEAT = 3
 
 def run_one(hw_name = HW_NAME, 
             trainable = False,
-            repeat = 3,
-            epochs = 10,
-            bs = 128,
+            repeat = REPEAT,
+            epochs = EPOCHS,
+            bs = BS,
             model= BASE_MODEL,
 ):
 
