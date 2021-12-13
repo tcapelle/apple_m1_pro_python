@@ -13,7 +13,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras as K
 from tensorflow.keras.backend import count_params
+from tensorflow.keras import mixed_precision
 import tensorflow_datasets as tfds
+
 
 # Set the random seeds
 os.environ['TF_CUDNN_DETERMINISTIC'] = '1' 
@@ -22,13 +24,15 @@ np.random.seed(hash("improves reproducibility") % 2**32 - 1)
 tf.random.set_seed(hash("by removing stochasticity") % 2**32 - 1)
 
 
-PROJECT = "m1-benchmark"
-HW = 'M1Pro'
+PROJECT = "apple_m1_pro"
+HW = 'RTX3090'
 ENTITY = None  #replace with the team id
 
 N_CLASSES = 10
 DATASET = "cifar10"
-BASE_MODEL = "MobileNetV2"
+BASE_MODEL = "ResNet50"
+BS = 128
+IMG_SIZE = 128
 
 class SamplesSec(K.callbacks.Callback):
     def __init__(self, epochs=1, batch_size=1, drop=5):
@@ -108,6 +112,7 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW, t
             include_top=False, weights='imagenet')
         base_model.trainable = run.config.trainable
 
+        
         # Decay learning rate
         lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
         run.config.init_lr, decay_steps=run.config.train_size, decay_rate=run.config.decay)
@@ -152,17 +157,25 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW, t
 
 @call_parse
 def main(
-    project:  Param("Name of the wandb Project to log on", str)='m1-benchmark',
-    hw:       Param("Name of the hardware: V100, M1, M1Pro, etc...", str)='M1Pro',
+    project:  Param("Name of the wandb Project to log on", str)=PROJECT,
+    hw:       Param("Name of the hardware: V100, M1, M1Pro, etc...", str)=HW,
     trainable: Param("Train full model or only head", store_true)=False,
     repeat:    Param("Number of times to repeat training", int)=1,
     epochs:     Param("Override epochs", int) = 10,
-    bs: Param("Override Batch Size", int) = 128,
-    img_size: Param("Override Image Size", int) = 128,
+    bs: Param("Override Batch Size", int) = BS,
+    img_size: Param("Override Image Size", int) = IMG_SIZE,
+    fp16: Param("Use mixed precision training", store_true)=False,
 ):
 
     wandb.login()
     # Default hyper-parameters, potentially overridden in sweep mode
+    
+    #mixed prec training for tensor core use
+    if fp16:
+        tf.config.optimizer.set_jit(True)
+        policy = mixed_precision.Policy("mixed_float16")
+        mixed_precision.set_global_policy(policy)
+        
     train_dataset = tfds.load(name=DATASET, as_supervised=True, split="train")
     test_dataset = tfds.load(name=DATASET, as_supervised=True, split="test")
     default_config = {
