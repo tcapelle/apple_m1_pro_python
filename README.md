@@ -38,6 +38,7 @@ Apple has made binaries for tensorflow 2 that supports the GPU inside the M1 pro
 Pytorch works straight out of the box, but only on CPU. There is a plan to release GPU support in the next months, follow [Soumith Chintala](https://twitter.com/soumithchintala) for up to date info on this.
 
 ## Benchmarks
+![resnet_50results.png](resnet50_results.png)
 You can check some runs on this [report](http://wandb.me/m1pro). To run the benchmark yourself in your new macbook pro:
 - setup the enviroment:
 ```bash
