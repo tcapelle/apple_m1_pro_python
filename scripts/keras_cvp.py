@@ -159,7 +159,7 @@ def train(train_dataset, test_dataset, default_config, project=PROJECT, hw=HW, t
 def main(
     project:  Param("Name of the wandb Project to log on", str)=PROJECT,
     hw:       Param("Name of the hardware: V100, M1, M1Pro, etc...", str)=HW,
-    trainable: Param("Train full model or only head", store_true)=False,
+    trainable: Param("Train full model or only head", store_true)=True,
     repeat:    Param("Number of times to repeat training", int)=1,
     epochs:     Param("Override epochs", int) = 10,
     bs: Param("Override Batch Size", int) = BS,

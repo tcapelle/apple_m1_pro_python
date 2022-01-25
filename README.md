@@ -59,26 +59,39 @@ This will run the training script 3 times with all parameters trainable (not fin
 
 We can also run the benchmarks on linux using nvidia docker [containers](https://docs.nvidia.com/deeplearning/frameworks/user-guide/index.html#runcont):: 
 
-- Install `docker` and `nvidia-docker`:
+- Install `docker` with [following official nvidia documentation](https://docs.nvidia.com/ai-enterprise/deployment-guide/dg-docker.html). Once the installation of docker and nvidia support is complete, you can run the tensorflow container. You cant test that your setup works correctly by running the dummy cuda container and yo should see the `nvidia-smi` output:
 
 ```bash
-sudo apt-get install -y docker nvidia-container-toolkit
+sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
 ```
+
+Now with the tensorflow container:
 
 - Pull the container:
 
 ```bash
-pull nvcr.io/nvidia/tensorflow:21.11-tf2-py3
+sudo docker pull nvcr.io/nvidia/tensorflow:21.11-tf2-py3
 ```
+once the download has finished, you can run the container with:
 
-- Run the containter:
+- Run the containter, replace the `path_to_folder` with the path to this repository. This will link this folder inside the docker container to `/code` path.
 
 ```bash
-docker run --gpus all -it --rm -v path_to_folder/apple_m1_pro_python:/code tensorflow:21.11-tf2-py3
+sudo docker run --gpus all -it --rm -v path_to_folder/apple_m1_pro_python:/code nvcr.io/nvidia/tensorflow:21.11-tf2-py3
 ```
 
-- Once inside the container, run the benchmark.
+once inside the container install the missing libraries:
+
+```bash
+$ pip install wandb fastcore tensorflow_datasets
+```
+
+- And finally run the benchmark, replace `your_gpu_name` with your graphcis card name: `RTX3070m`, `A100`, etc... With modern Nvidia hardware (after RTX cards) you should enable the `--fp16` flag to use the tensor cores on your GPU.
+
+```bash
+python scripts/keras_cvp.py --hw "your_gpu_name" --trainable --fp16
+```
 
 > Note: You may need `sudo` to run docker.
 
-> Note2: Using this method is substantially faster, please use the NV containers.
+> Note2: Using this method is substantially faster than installing the python libs one by one, please use the NV containers.
