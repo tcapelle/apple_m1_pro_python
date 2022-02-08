@@ -28,7 +28,7 @@ tf.random.set_seed(hash("by removing stochasticity") % 2**32 - 1)
 
 
 PROJECT = "apple_m1_pro"
-HW = 'RTX3090'
+HW = 'M1Pro'
 ENTITY = None  #replace with the team id
 
 N_CLASSES = 10
