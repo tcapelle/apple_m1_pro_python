@@ -1,3 +1,5 @@
+# [Apple M1Pro Tensorflow Training Results](https://wandb.ai/tcapelle/apple_m1_pro/reports/Deep-Learning-on-the-M1-Pro-with-Apple-Silicon---VmlldzoxMjQ0NjY3)
+
 # Macbook Pro M1 setup
 > How to setup python and DL libs on your new macbook pro
 
