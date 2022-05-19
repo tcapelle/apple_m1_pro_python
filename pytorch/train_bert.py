@@ -88,6 +88,8 @@ def train_bert(config):
         batch_size=config.batch_size,
         num_workers=config.num_workers)
 
+    config.device = "cuda" if torch.cuda.is_available() else config.device
+
     model = get_model(config.model_name).to(config.device)
 
     trainer = MicroTrainer(model, train_dl, device=config.device, fp16=config.fp16)
