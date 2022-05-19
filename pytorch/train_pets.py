@@ -104,7 +104,7 @@ def get_model(n_out, arch="resnet18", pretrained=True):
 def train(config=config_defaults):
     config.device = "cuda" if torch.cuda.is_available() else config.device
     config.fp16 = config.device=="cuda"
-    
+
     with wandb.init(project=PROJECT, entity=ENTITY, config=config):
 
 
@@ -139,7 +139,7 @@ def train(config=config_defaults):
 
                 ti = perf_counter()
                 if config.fp16:
-                    with torch.cuda.amp.autocast():
+                    with autocast():
                         outputs = model(images)
                         train_loss = loss_func(outputs, labels)
                 else:

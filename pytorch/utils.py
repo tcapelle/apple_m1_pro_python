@@ -78,7 +78,7 @@ class MicroTrainer:
             self.model.train()
             self.do_one_epoch(self.train_dl, epoch)
     
-    def inference(self, repeat=5):
+    def inference(self, repeat=10):
         self.model.eval()
         batch = next(iter(self.train_dl))
         N = len(batch["labels"])
