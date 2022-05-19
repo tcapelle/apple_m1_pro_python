@@ -18,7 +18,7 @@ PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
 
 config_defaults = SimpleNamespace(
-    batch_size=32,
+    batch_size=64,
     device="mps",
     epochs=1,
     num_experiments=1,
@@ -90,8 +90,7 @@ def get_dataloader(dataset_path, batch_size, image_size=224, num_workers=0):
     loader = torch.utils.data.DataLoader(ds, 
                                          batch_size=batch_size,
                                          pin_memory=True,
-                                         num_workers=num_workers
-                                        )
+                                         num_workers=num_workers)
     return loader
 
 
@@ -107,10 +106,8 @@ def train(config=config_defaults):
 
     with wandb.init(project=PROJECT, entity=ENTITY, config=config):
 
-
         # Copy your config 
         config = wandb.config
-
 
         # Get the data
         train_dl = get_dataloader(dataset_path=get_pets(), 
@@ -119,15 +116,12 @@ def train(config=config_defaults):
                                   num_workers=config.num_workers)
         n_steps_per_epoch = math.ceil(len(train_dl.dataset) / config.batch_size)
 
-
         model = get_model(len(train_dl.dataset.vocab), config.model_name)
         model.to(config.device)
-
 
         # Make the loss and optimizer
         loss_func = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
-
 
        # Training
         example_ct = 0
@@ -149,19 +143,15 @@ def train(config=config_defaults):
                 optimizer.step()
                 optimizer.zero_grad()
                 tf = perf_counter()
-
-
                 example_ct += len(images)
                 metrics = {"train/train_loss": train_loss, 
                            "train/epoch": (step + 1 + (n_steps_per_epoch * epoch)) / n_steps_per_epoch, 
                            "train/example_ct": example_ct,
                            "imgs_per_sec":len(images)/(tf-ti)}
 
-
                 if step + 1 < n_steps_per_epoch:
                     # 🐝 Log train metrics to wandb 
                     wandb.log(metrics)
-
 
                 step_ct += 1
                 
