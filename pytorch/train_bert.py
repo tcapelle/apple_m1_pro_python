@@ -89,6 +89,7 @@ def train_bert(config):
         num_workers=config.num_workers)
 
     config.device = "cuda" if torch.cuda.is_available() else config.device
+    config.fp16 = config.device=="cuda"
 
     model = get_model(config.model_name).to(config.device)
 
