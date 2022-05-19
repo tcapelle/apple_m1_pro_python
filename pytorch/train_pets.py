@@ -12,6 +12,7 @@ import torch
 import torch.nn as nn
 import torchvision as tv
 import torchvision.transforms as T
+from torch.cuda.amp import autocast
 
 PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
@@ -26,7 +27,8 @@ config_defaults = SimpleNamespace(
     model_name="resnet50",
     dataset="PETS",
     num_workers=0,
-    gpu_name=None,
+    gpu_name="M1Pro GPU 16 Cores",
+    fp16=False
 )
 
 def parse_args():
@@ -41,6 +43,7 @@ def parse_args():
     parser.add_argument('--device', type=str, default=config_defaults.device)
     parser.add_argument('--gpu_name', type=str, default=config_defaults.gpu_name)
     parser.add_argument('--num_workers', type=int, default=config_defaults.num_workers)
+    parser.add_argument('--fp16', action="store_true")
     return parser.parse_args()
 
 def get_pets():
@@ -132,11 +135,16 @@ def train(config=config_defaults):
                 images, labels = images.to(config.device), labels.to(config.device)
 
                 ti = perf_counter()
-                outputs = model(images)
-                train_loss = loss_func(outputs, labels)
-                optimizer.zero_grad()
+                if config.fp16:
+                    with torch.cuda.amp.autocast():
+                        outputs = model(images)
+                        train_loss = loss_func(outputs, labels)
+                else:
+                    outputs = model(images)
+                    train_loss = loss_func(outputs, labels)
                 train_loss.backward()
                 optimizer.step()
+                optimizer.zero_grad()
                 tf = perf_counter()
 
 
