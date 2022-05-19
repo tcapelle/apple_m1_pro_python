@@ -7,7 +7,7 @@ from time import perf_counter
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, default_data_collator
-from datasets import load_dataset, load_metric
+from datasets import load_dataset
 
 
 PROJECT = "pytorch-M1Pro"
