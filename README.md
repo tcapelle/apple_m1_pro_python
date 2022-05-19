@@ -1,8 +1,11 @@
-# [Apple M1Pro Tensorflow Training Results](https://wandb.me/m1pro)
-# [Apple M1Pro Pytorch Training Results](https://wandb.me/pytorch_m1)
+# Apple Silicon DL benchmarks
+
+Currently we have PyTorch and Tensorflow that have Metal backend.
 
 ## Results 
-Varied results across frameworks
+Varied results across frameworks:
+- [Apple M1Pro Pytorch Training Results](https://wandb.me/pytorch_m1)
+- [Apple M1Pro Tensorflow Training Results](https://wandb.me/m1pro)
 
 ### Tensorflow Resnet50:
 ![tf_resnet_50results.png](tf_resnet50_results.png)
