@@ -62,3 +62,12 @@ $ python train_pets.py --device="mps" --gpu_name="M1Pro GPU 16 Cores"
 - Pass the `--gpu_name` flag to group the runs, I am not able to detect this automatically on Apple.
 - To run on cpu pass `--device="cpu"` or for CUDA `--device="cuda"` (you need a linux PC with an Nvidia GPU)
 - You can also pass other params, and play with different `batch_size` and `model_name`.
+
+
+## Bert Benchmark
+
+In your terminal run:
+
+``bash
+$ python train_bert.py --device="mps" --gpu_name="M1Pro GPU 16 Cores" #replace ywith your GPU name
+```
