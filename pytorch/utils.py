@@ -42,7 +42,7 @@ class MicroTrainer:
     def do_one_batch(self, batch):
         batch = to_device(batch, device=self.device)
         if self.fp16:
-            with torch.cuda.amp.autocast():
+            with autocast():
                 outputs = self.model(**batch)
                 loss = outputs.loss
         else:
