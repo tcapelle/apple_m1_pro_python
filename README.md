@@ -10,8 +10,6 @@
 
 We have official PyTorch support! check [pytorch](pytorch) folder to start running your benchmarks
 
-
-
 ## Tensorflow
 
-You can run tensorflow benchmarks by going to the tensorflow folder.
+You can run tensorflow benchmarks by going to the [tensorflow](tensorflow) folder.
