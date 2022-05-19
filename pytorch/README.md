@@ -68,6 +68,6 @@ $ python train_pets.py --device="mps" --gpu_name="M1Pro GPU 16 Cores"
 
 In your terminal run:
 
-``bash
+```bash
 $ python train_bert.py --device="mps" --gpu_name="M1Pro GPU 16 Cores" #replace ywith your GPU name
 ```
