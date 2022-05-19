@@ -56,7 +56,7 @@ torch.tensor([1,2,3], device="mps")
 In your terminal run:
 
 ```bash
-$ python train_pets.py --device="mps" --gpu_name="M1Pro GPU 16 Cores"
+$ python train_pets.py --device="mps" --gpu_name="M1Pro GPU 16 Cores" #replace with your GPU name
 ```
 
 - Pass the `--gpu_name` flag to group the runs, I am not able to detect this automatically on Apple.
@@ -69,5 +69,5 @@ $ python train_pets.py --device="mps" --gpu_name="M1Pro GPU 16 Cores"
 In your terminal run:
 
 ```bash
-$ python train_bert.py --device="mps" --gpu_name="M1Pro GPU 16 Cores" #replace ywith your GPU name
+$ python train_bert.py --device="mps" --gpu_name="M1Pro GPU 16 Cores" #replace with your GPU name
 ```
