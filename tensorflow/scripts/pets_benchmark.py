@@ -105,8 +105,7 @@ VOCAB = [
 
 
 class SamplesSec(tf.keras.callbacks.Callback):
-    def __init__(self, epochs=1, batch_size=1, drop=5):
-        self.epochs = epochs
+    def __init__(self, batch_size=1, drop=5):
         self.batch_size = batch_size
         self.drop = drop
         
@@ -133,7 +132,7 @@ class SamplesSec(tf.keras.callbacks.Callback):
         self.samples_s += samples_s_batch
     
     def on_train_end(self, logs={}):
-        wandb.summary({"samples_per_s": self.samples_s/self.epochs})
+        wandb.summary({"samples_per_s": self.samples_s/self.param["epochs"]})
 
 class PetsDataLoader:
     def __init__(
@@ -202,19 +201,8 @@ def get_model(image_size: int, model_name: str, vocab: List[str]) -> Model:
 
 
 def train(args):
-    with wandb.init(project=PROJECT, entity=ENTITY, job_type="Benchmark"):
-
+    with wandb.init(project=PROJECT, entity=ENTITY, job_type="Benchmark", config=args):
         config = wandb.config
-        config.image_size = args.image_size
-        config.batch_size = args.batch_size
-        config.validation_split = args.validation_split
-        config.artifact_address = args.artifact_address
-        config.model_name = args.model_name
-        config.vocab = VOCAB
-        config.epochs = args.epochs
-        config.learning_rate = args.learning_rate
-        config.gpu_name = args.gpu_name
-
         loader = PetsDataLoader(
             artifact_address=config.artifact_address,
             preprocess_fn=BACKBONE_DICT[config.model_name]["preprocess_fn"],
@@ -245,7 +233,7 @@ def train(args):
             validation_data=val_dataset,
             epochs=config.epochs,
             callbacks=[WandbCallback(),
-                       SamplesSec(config.epochs, config.batch_size)],
+                       SamplesSec(config.batch_size)],
         )
 
 
