@@ -14,8 +14,9 @@ import torchvision as tv
 import torchvision.transforms as T
 from torch.cuda.amp import autocast
 
-PROJECT = "pytorch-M1Pro"
+PROJECT = "M1_TF_vs_PT"
 ENTITY = "capecape"
+GROUP = "pytorch"
 
 config_defaults = SimpleNamespace(
     batch_size=64,
@@ -104,7 +105,7 @@ def train(config=config_defaults):
     config.device = "cuda" if torch.cuda.is_available() else config.device
     config.fp16 = config.device=="cuda"
 
-    with wandb.init(project=PROJECT, entity=ENTITY, config=config):
+    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, config=config):
 
         # Copy your config 
         config = wandb.config
