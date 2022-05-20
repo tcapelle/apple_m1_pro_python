@@ -132,7 +132,7 @@ class SamplesSec(tf.keras.callbacks.Callback):
         self.samples_s += samples_s_batch
     
     def on_train_end(self, logs={}):
-        wandb.summary({"samples_per_s": self.samples_s/self.param["epochs"]})
+        wandb.summary({"samples_per_s": self.samples_s/self.params["epochs"]})
 
 class PetsDataLoader:
     def __init__(
