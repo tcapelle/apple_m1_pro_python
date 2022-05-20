@@ -147,7 +147,7 @@ def train(config=config_defaults):
                 metrics = {"train/train_loss": train_loss, 
                            "train/epoch": (step + 1 + (n_steps_per_epoch * epoch)) / n_steps_per_epoch, 
                            "train/example_ct": example_ct,
-                           "imgs_per_sec":len(images)/(tf-ti)}
+                           "samples_per_sec":len(images)/(tf-ti)}
 
                 if step + 1 < n_steps_per_epoch:
                     # 🐝 Log train metrics to wandb 
