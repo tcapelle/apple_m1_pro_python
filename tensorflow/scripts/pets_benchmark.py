@@ -1,6 +1,7 @@
 import re
 import os
 import argparse
+from time import perf_counter
 from glob import glob
 from typing import List
 from pathlib import Path
@@ -102,6 +103,37 @@ VOCAB = [
     "yorkshire_terrier",
 ]
 
+
+class SamplesSec(tf.keras.callbacks.Callback):
+    def __init__(self, epochs=1, batch_size=1, drop=5):
+        self.epochs = epochs
+        self.batch_size = batch_size
+        self.drop = drop
+        
+
+    def on_train_begin(self, logs={}):
+        self.epoch_times = []
+        self.samples_s = 0.
+
+    def on_epoch_begin(self, epoch, logs={}):
+        self.batch_times = []
+
+    def on_train_batch_begin(self, batch, logs={}):
+        self.batch_train_start = perf_counter()
+
+    def on_train_batch_end(self, batch, logs={}):
+        t = perf_counter() - self.batch_train_start
+        self.batch_times.append(t)
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.batch_times.sort()
+        avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
+        samples_s_batch = self.batch_size / avg_time_per_batch
+        wandb.log({"samples_per_batch": samples_s_batch})
+        self.samples_s += samples_s_batch
+    
+    def on_train_end(self, logs={}):
+        wandb.log({"samples_per_s": self.samples_s/self.epochs})
 
 class PetsDataLoader:
     def __init__(
@@ -212,7 +244,8 @@ def train(args):
             train_dataset,
             validation_data=val_dataset,
             epochs=config.epochs,
-            callbacks=[WandbCallback()],
+            callbacks=[WandbCallback(),
+                       SamplesSec(config.epochs, config.batch_size)],
         )
 
 
