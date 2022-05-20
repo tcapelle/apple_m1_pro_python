@@ -12,13 +12,13 @@ import wandb
 from wandb.keras import WandbCallback
 
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras import Input, Model
 from tensorflow.keras import layers, losses, optimizers, applications
 
 
-PROJECT = "pytorch-M1Pro"
-ENTITY = "geekyrakshit"
+PROJECT = "M1_TF_vs_PT"
+ENTITY = "capecape"
+GROUP = "tf"
 
 config_defaults = SimpleNamespace(
     batch_size=64,
@@ -27,7 +27,7 @@ config_defaults = SimpleNamespace(
     learning_rate=1e-3,
     validation_split=0.2,
     image_size=128,
-    backbone_name="resnet50",
+    model_name="resnet50",
     artifact_address="capecape/pytorch-M1Pro/PETS:latest",
     gpu_name="M1Pro GPU 16 Cores",
     fp16=False,
@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument(
         "--learning_rate", type=float, default=config_defaults.learning_rate
     )
-    parser.add_argument("--backbone_name", type=str, default=config_defaults.backbone_name)
+    parser.add_argument("--model_name", type=str, default=config_defaults.model_name)
     parser.add_argument("--artifact_address", type=str, default=config_defaults.artifact_address)
     parser.add_argument("--gpu_name", type=str, default=config_defaults.gpu_name)
     return parser.parse_args()
@@ -108,9 +108,9 @@ class PetsDataLoader:
         self,
         artifact_address: str,
         preprocess_fn: Callable,
-        vocab: List[str],
         image_size: int,
         batch_size: int,
+        vocab: List[str]=VOCAB,
     ):
         self.artifact_address = artifact_address
         self.dataset_path = self.get_pets()
@@ -158,10 +158,10 @@ class PetsDataLoader:
         return train_dataset, val_dataset
 
 
-def get_model(image_size: int, backbone_name: str, vocab: List[str]) -> Model:
+def get_model(image_size: int, model_name: str, vocab: List[str]) -> Model:
     input_shape = [image_size, image_size, 3]
     input_tensor = Input(shape=input_shape)
-    backbone_out = BACKBONE_DICT[backbone_name]["model"](
+    backbone_out = BACKBONE_DICT[model_name]["model"](
         include_top=False, input_tensor=input_tensor
     )(input_tensor)
     x = layers.GlobalAveragePooling2D()(backbone_out)
@@ -177,7 +177,7 @@ def train(args):
         config.batch_size = args.batch_size
         config.validation_split = args.validation_split
         config.artifact_address = args.artifact_address
-        config.backbone_name = args.backbone_name
+        config.model_name = args.model_name
         config.vocab = VOCAB
         config.epochs = args.epochs
         config.learning_rate = args.learning_rate
@@ -185,7 +185,7 @@ def train(args):
 
         loader = PetsDataLoader(
             artifact_address=config.artifact_address,
-            preprocess_fn=BACKBONE_DICT[config.backbone]["preprocess_fn"],
+            preprocess_fn=BACKBONE_DICT[config.model_name]["preprocess_fn"],
             image_size=config.image_size,
             batch_size=config.batch_size,
         )
@@ -197,7 +197,7 @@ def train(args):
 
         model = get_model(
             image_size=config.image_size,
-            backbone_name=config.backbone_name,
+            model_name=config.model_name,
             vocab=VOCAB,
         )
         model.summary()
