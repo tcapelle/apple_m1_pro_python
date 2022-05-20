@@ -26,7 +26,7 @@ config_defaults = SimpleNamespace(
     epochs=1,
     num_experiments=1,
     learning_rate=1e-3,
-    validation_split=0.2,
+    validation_split=0.0,
     image_size=128,
     model_name="resnet50",
     artifact_address="capecape/pytorch-M1Pro/PETS:latest",
@@ -122,17 +122,18 @@ class SamplesSec(tf.keras.callbacks.Callback):
 
     def on_train_batch_end(self, batch, logs={}):
         t = perf_counter() - self.batch_train_start
-        self.batch_times.append(t)
+        wandb.log({"samples_per_sec": self.batch_size/t})
+        # self.batch_times.append(t)
 
-    def on_epoch_end(self, epoch, logs={}):
-        self.batch_times.sort()
-        avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
-        samples_s_batch = self.batch_size / avg_time_per_batch
-        wandb.log({"samples_per_batch": samples_s_batch})
-        self.samples_s += samples_s_batch
+    # def on_epoch_end(self, epoch, logs={}):
+        # self.batch_times.sort()
+        # avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
+        # samples_s_batch = self.batch_size / avg_time_per_batch
+        # wandb.log({"samples_per_batch": samples_s_batch})
+        # self.samples_s += samples_s_batch
     
-    def on_train_end(self, logs={}):
-        wandb.summary["samples_per_sec"] = self.samples_s/self.params["epochs"]
+    # def on_train_end(self, logs={}):
+    #     wandb.summary["samples_per_sec"] = self.samples_s/self.params["epochs"]
 
 class PetsDataLoader:
     def __init__(
@@ -181,11 +182,15 @@ class PetsDataLoader:
         return dataset
 
     def get_datasets(self, val_split: float):
-        train_images, val_images, train_labels, val_labels = train_test_split(
-            self.image_files, self.labels, test_size=val_split
-        )
-        train_dataset = self.build_dataset(train_images, train_labels)
-        val_dataset = self.build_dataset(val_images, val_labels)
+        if val_split>0:
+            train_images, val_images, train_labels, val_labels = train_test_split(
+                self.image_files, self.labels, test_size=val_split
+            )
+            train_dataset = self.build_dataset(train_images, train_labels)
+            val_dataset = self.build_dataset(val_images, val_labels)
+        else:
+            train_dataset = self.build_dataset(self.image_files, self.labels)
+            val_dataset = None
         return train_dataset, val_dataset
 
 
@@ -201,7 +206,7 @@ def get_model(image_size: int, model_name: str, vocab: List[str]) -> Model:
 
 
 def train(args):
-    with wandb.init(project=PROJECT, entity=ENTITY, job_type="Benchmark", config=args):
+    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, config=args):
         config = wandb.config
         loader = PetsDataLoader(
             artifact_address=config.artifact_address,
