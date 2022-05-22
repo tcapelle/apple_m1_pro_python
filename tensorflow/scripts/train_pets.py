@@ -32,6 +32,7 @@ config_defaults = SimpleNamespace(
     artifact_address="capecape/pytorch-M1Pro/PETS:latest",
     gpu_name="M1Pro GPU 16 Cores",
     fp16=False,
+    optimizer="Adam",
 )
 
 
@@ -52,6 +53,7 @@ def parse_args():
     parser.add_argument("--model_name", type=str, default=config_defaults.model_name)
     parser.add_argument("--artifact_address", type=str, default=config_defaults.artifact_address)
     parser.add_argument("--gpu_name", type=str, default=config_defaults.gpu_name)
+    parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
     return parser.parse_args()
 
 
@@ -227,9 +229,11 @@ def train(args):
         )
         model.summary()
 
+        optimizer = getattr(optimizers, config.optimizer)
+
         model.compile(
             loss=losses.SparseCategoricalCrossentropy(from_logits=True),
-            optimizer=optimizers.Adam(learning_rate=config.learning_rate),
+            optimizer=optimizer(learning_rate=config.learning_rate),
             metrics=["accuracy"],
         )
 
