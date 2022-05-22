@@ -29,7 +29,8 @@ config_defaults = SimpleNamespace(
     dataset="PETS",
     num_workers=0,
     gpu_name="M1Pro GPU 16 Cores",
-    fp16=False
+    fp16=False,
+    optimizer="Adam"
 )
 
 def parse_args():
@@ -45,6 +46,7 @@ def parse_args():
     parser.add_argument('--gpu_name', type=str, default=config_defaults.gpu_name)
     parser.add_argument('--num_workers', type=int, default=config_defaults.num_workers)
     parser.add_argument('--fp16', action="store_true")
+    parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
     return parser.parse_args()
 
 def get_pets():
@@ -122,7 +124,8 @@ def train(config=config_defaults):
 
         # Make the loss and optimizer
         loss_func = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+        optimizer = getattr(torch.optim, config.optimizer)
+        optimizer = optimizer(model.parameters(), lr=config.learning_rate)
 
        # Training
         example_ct = 0
