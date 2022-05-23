@@ -38,6 +38,7 @@ config_defaults = SimpleNamespace(
 
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--entity", type=str, default=ENTITY)
     parser.add_argument("--image_size", type=int, default=config_defaults.image_size)
     parser.add_argument("--batch_size", type=int, default=config_defaults.batch_size)
     parser.add_argument("--epochs", type=int, default=config_defaults.epochs)
@@ -208,7 +209,7 @@ def get_model(image_size: int, model_name: str, vocab: List[str]) -> Model:
 
 
 def train(args):
-    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, config=args):
+    with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=args):
         config = wandb.config
         loader = PetsDataLoader(
             artifact_address=config.artifact_address,
