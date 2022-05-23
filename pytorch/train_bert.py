@@ -1,5 +1,5 @@
-## Author: Thomas Capelle
-## Mail:   tcapelle@wandb.com
+## Author: Thomas Capelle, Soumik Rakshit
+## Mail:   tcapelle@wandb.com, soumik.rakshit@wandb.com
 
 """"Benchmarking apple M1Pro with Tensorflow
 @wandbcode{apple_m1_pro}"""
