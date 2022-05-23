@@ -35,6 +35,7 @@ config_defaults = SimpleNamespace(
 
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--entity", type=str, default=ENTITY)
     parser.add_argument('--batch_size', type=int, default=config_defaults.batch_size)
     parser.add_argument('--epochs', type=int, default=config_defaults.epochs)
     parser.add_argument('--num_experiments', type=int, default=config_defaults.num_experiments)
@@ -107,7 +108,7 @@ def train(config=config_defaults):
     config.device = "cuda" if torch.cuda.is_available() else config.device
     config.fp16 = config.device=="cuda"
 
-    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, config=config):
+    with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=config):
 
         # Copy your config 
         config = wandb.config
