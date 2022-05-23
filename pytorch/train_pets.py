@@ -4,7 +4,6 @@
 """"Benchmarking apple M1Pro with Tensorflow
 @wandbcode{apple_m1_pro}"""
 
-
 import re, math, argparse
 from types import SimpleNamespace
 from pathlib import Path
