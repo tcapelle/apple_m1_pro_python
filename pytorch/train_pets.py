@@ -95,13 +95,14 @@ class Pets(torch.utils.data.Dataset):
     def __len__(self): return len(self.files)
 
 
-def get_dataloader(dataset_path, batch_size, image_size=224, num_workers=0):
+def get_dataloader(dataset_path, batch_size, image_size=224, num_workers=0, **kwargs):
     "Get a training dataloader"
     ds = Pets(dataset_path, image_size=image_size)
     loader = torch.utils.data.DataLoader(ds, 
                                          batch_size=batch_size,
                                          pin_memory=True,
-                                         num_workers=num_workers)
+                                         num_workers=num_workers,
+                                         **kwargs)
     return loader
 
 
