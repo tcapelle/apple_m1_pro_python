@@ -20,6 +20,7 @@ from wandb.keras import WandbCallback
 
 import tensorflow as tf
 from tensorflow.keras import Input, Model
+from tensorflow.keras import mixed_precision
 from tensorflow.keras import layers, losses, optimizers, applications
 
 
@@ -37,7 +38,7 @@ config_defaults = SimpleNamespace(
     model_name="resnet50",
     artifact_address="capecape/pytorch-M1Pro/PETS:latest",
     gpu_name="M1Pro GPU 16 Cores",
-    fp16=False,
+    mixed_precision=False,
     optimizer="Adam",
 )
 
@@ -61,6 +62,7 @@ def parse_args():
     parser.add_argument("--artifact_address", type=str, default=config_defaults.artifact_address)
     parser.add_argument("--gpu_name", type=str, default=config_defaults.gpu_name)
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
+    parser.add_argument("--mixed_precision", type=int, default=config_defaults.mixed_precision)
     return parser.parse_args()
 
 
@@ -217,6 +219,8 @@ def get_model(image_size: int, model_name: str, vocab: List[str]) -> Model:
 def train(args):
     with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=args):
         config = wandb.config
+        if args.mixed_precision:
+            mixed_precision.set_global_policy('mixed_float16')
         loader = PetsDataLoader(
             artifact_address=config.artifact_address,
             preprocess_fn=BACKBONE_DICT[config.model_name]["preprocess_fn"],
