@@ -65,7 +65,7 @@ def parse_args():
     )
     parser.add_argument("--gpu_name", type=str, default=config_defaults.gpu_name)
     parser.add_argument("--optimizer", type=str, default=config_defaults.optimizer)
-    parser.add_argument("--mixed_preision", action="store_true")
+    parser.add_argument("--mixed_precision", action="store_true")
     parser.add_argument("--enable_xla", action="store_true")
     return parser.parse_args()
 
