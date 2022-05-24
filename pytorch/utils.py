@@ -26,6 +26,7 @@ def to_device(batch, device="cpu"):
         raise Exception(f"Can't put your batch of type {type(batch)} into device: {device}")
     return batch
 
+
 @dataclass
 class MicroTrainer:
     model: torch.nn.Module
@@ -58,8 +59,6 @@ class MicroTrainer:
             loss.backward()
             self.optimizer.step()
             tf = perf_counter()
-
-
             self.example_ct += len(batch["labels"])
             metrics = {"train/train_loss": loss, 
                         "train/epoch": (step + 1 + (self.n_steps_per_epoch * epoch)) / self.n_steps_per_epoch, 
@@ -74,8 +73,8 @@ class MicroTrainer:
     def fit(self, epochs):
         self.example_ct = 0
         self.step_ct = 0
+        self.model.train()
         for epoch in tqdm(range(epochs)):
-            self.model.train()
             self.do_one_epoch(self.train_dl, epoch)
     
     def inference(self, repeat=10):
