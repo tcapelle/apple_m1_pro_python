@@ -63,7 +63,7 @@ def parse_args():
     parser.add_argument("--artifact_address", type=str, default=config_defaults.artifact_address)
     parser.add_argument("--gpu_name", type=str, default=config_defaults.gpu_name)
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
-    parser.add_argument("--mixed_precision", action="store_true")
+    parser.add_argument("--fp16", action="store_true")
     return parser.parse_args()
 
 
