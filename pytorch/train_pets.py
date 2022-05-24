@@ -20,7 +20,7 @@ import torchvision as tv
 import torchvision.transforms as T
 from torch.cuda.amp import autocast
 
-PROJECT = "M1_TF_vs_PT"
+PROJECT = "capecape/M1_TF_vs_PT"
 ENTITY = "capecape"
 GROUP = "pytorch"
 
@@ -41,6 +41,7 @@ config_defaults = SimpleNamespace(
 
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--project", type=str, default=PROJECT)
     parser.add_argument("--entity", type=str, default=ENTITY)
     parser.add_argument('--batch_size', type=int, default=config_defaults.batch_size)
     parser.add_argument('--epochs', type=int, default=config_defaults.epochs)
@@ -115,7 +116,7 @@ def train(config=config_defaults):
     config.device = "cuda" if torch.cuda.is_available() else config.device
     config.fp16 = config.device == "cuda"
 
-    with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=config):
+    with wandb.init(project=config.project, entity=config.entity, group=GROUP, config=config):
 
         # Copy your config 
         config = wandb.config

@@ -24,7 +24,7 @@ from tensorflow.keras import mixed_precision
 from tensorflow.keras import layers, losses, optimizers, applications
 
 
-PROJECT = "M1_TF_vs_PT"
+PROJECT = "capecape/M1_TF_vs_PT"
 ENTITY = "capecape"
 GROUP = "tf"
 
@@ -45,6 +45,7 @@ config_defaults = SimpleNamespace(
 
 def parse_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--project", type=str, default=PROJECT)
     parser.add_argument("--entity", type=str, default=ENTITY)
     parser.add_argument("--image_size", type=int, default=config_defaults.image_size)
     parser.add_argument("--batch_size", type=int, default=config_defaults.batch_size)
@@ -217,7 +218,7 @@ def get_model(image_size: int, model_name: str, vocab: List[str]) -> Model:
 
 
 def train(args):
-    with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=args):
+    with wandb.init(project=args.project, entity=args.entity, group=GROUP, config=args):
         config = wandb.config
         if args.mixed_precision:
             mixed_precision.set_global_policy('mixed_float16')
