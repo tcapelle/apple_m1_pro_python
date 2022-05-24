@@ -32,7 +32,7 @@ config_defaults = SimpleNamespace(
     device="mps",
     gpu_name="M1Pro GPU 16 Cores",
     num_workers=0,
-    fp16=False,
+    mixed_precision=False,
 )
 
 def parse_args():
@@ -47,7 +47,7 @@ def parse_args():
     parser.add_argument('--gpu_name', type=str, default=config_defaults.gpu_name)
     parser.add_argument('--num_workers', type=int, default=config_defaults.num_workers)
     parser.add_argument('--inference_only', action="store_true")
-    parser.add_argument('--fp16', action="store_true")
+    parser.add_argument('--mixed_precision', action="store_true")
     return parser.parse_args()
 
 
@@ -96,11 +96,11 @@ def train_bert(config):
         num_workers=config.num_workers)
 
     config.device = "cuda" if torch.cuda.is_available() else config.device
-    config.fp16 = config.device=="cuda"
+    config.mixed_precision = config.device=="cuda"
 
     model = get_model(config.model_name).to(config.device)
 
-    trainer = MicroTrainer(model, train_dl, device=config.device, fp16=config.fp16)
+    trainer = MicroTrainer(model, train_dl, device=config.device, mixed_precision=config.mixed_precision)
     with wandb.init(project=PROJECT, entity=ENTITY, config=config):
         if not config.inference_only:
             trainer.fit(config.epochs)

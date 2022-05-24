@@ -35,7 +35,7 @@ config_defaults = SimpleNamespace(
     dataset="PETS",
     num_workers=0,
     gpu_name="M1Pro GPU 16 Cores",
-    fp16=False,
+    mixed_precision=False,
     optimizer="Adam"
 )
 
@@ -52,7 +52,7 @@ def parse_args():
     parser.add_argument('--device', type=str, default=config_defaults.device)
     parser.add_argument('--gpu_name', type=str, default=config_defaults.gpu_name)
     parser.add_argument('--num_workers', type=int, default=config_defaults.num_workers)
-    parser.add_argument('--fp16', action="store_true")
+    parser.add_argument('--mixed_precision', action="store_true")
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
     return parser.parse_args()
 
@@ -113,7 +113,7 @@ def get_model(n_out, arch="resnet18", pretrained=True):
 
 def train(config=config_defaults):
     config.device = "cuda" if torch.cuda.is_available() else config.device
-    config.fp16 = config.device=="cuda" if config.fp16 else config.fp16
+    config.mixed_precision = config.device=="cuda" if config.mixed_precision else config.mixed_precision
 
     with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=config):
 
@@ -144,7 +144,7 @@ def train(config=config_defaults):
                 images, labels = images.to(config.device), labels.to(config.device)
 
                 ti = perf_counter()
-                if config.fp16:
+                if config.mixed_precision:
                     with autocast():
                         outputs = model(images)
                         train_loss = loss_func(outputs, labels)

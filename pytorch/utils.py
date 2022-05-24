@@ -32,7 +32,7 @@ class MicroTrainer:
     train_dl: DataLoader
     test_dl: DataLoader=None
     device: str="mps"
-    fp16: bool=False
+    mixed_precision: bool=False
 
     def __post_init__(self):
         self.model = self.model.to(self.device)
@@ -41,7 +41,7 @@ class MicroTrainer:
         
     def do_one_batch(self, batch):
         batch = to_device(batch, device=self.device)
-        if self.fp16:
+        if self.mixed_precision:
             with autocast():
                 outputs = self.model(**batch)
                 loss = outputs.loss
