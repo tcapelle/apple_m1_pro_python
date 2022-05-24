@@ -118,10 +118,10 @@ def check_cuda(config):
         config.device = "cuda"
         config.mixed_precision = True
         config.gpu_name = torch.cuda.get_device_name()
-
+    return config
 
 def train(config=config_defaults):
-    check_cuda(config)
+    config = check_cuda(config)
     with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=config):
 
         # Copy your config 
