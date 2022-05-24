@@ -60,10 +60,13 @@ def parse_args():
         "--learning_rate", type=float, default=config_defaults.learning_rate
     )
     parser.add_argument("--model_name", type=str, default=config_defaults.model_name)
-    parser.add_argument("--artifact_address", type=str, default=config_defaults.artifact_address)
+    parser.add_argument(
+        "--artifact_address", type=str, default=config_defaults.artifact_address
+    )
     parser.add_argument("--gpu_name", type=str, default=config_defaults.gpu_name)
-    parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
+    parser.add_argument("--optimizer", type=str, default=config_defaults.optimizer)
     parser.add_argument("--fp16", action="store_true")
+    parser.add_argument("--enable_xla", action="store_true")
     return parser.parse_args()
 
 
@@ -120,11 +123,10 @@ class SamplesSec(tf.keras.callbacks.Callback):
     def __init__(self, batch_size=1, drop=5):
         self.batch_size = batch_size
         self.drop = drop
-        
 
     def on_train_begin(self, logs={}):
         self.epoch_times = []
-        self.samples_s = 0.
+        self.samples_s = 0.0
 
     def on_epoch_begin(self, epoch, logs={}):
         self.batch_times = []
@@ -134,18 +136,19 @@ class SamplesSec(tf.keras.callbacks.Callback):
 
     def on_train_batch_end(self, batch, logs={}):
         t = perf_counter() - self.batch_train_start
-        wandb.log({"samples_per_sec": self.batch_size/t})
+        wandb.log({"samples_per_sec": self.batch_size / t})
         # self.batch_times.append(t)
 
     # def on_epoch_end(self, epoch, logs={}):
-        # self.batch_times.sort()
-        # avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
-        # samples_s_batch = self.batch_size / avg_time_per_batch
-        # wandb.log({"samples_per_batch": samples_s_batch})
-        # self.samples_s += samples_s_batch
-    
+    # self.batch_times.sort()
+    # avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
+    # samples_s_batch = self.batch_size / avg_time_per_batch
+    # wandb.log({"samples_per_batch": samples_s_batch})
+    # self.samples_s += samples_s_batch
+
     # def on_train_end(self, logs={}):
     #     wandb.summary["samples_per_sec"] = self.samples_s/self.params["epochs"]
+
 
 class PetsDataLoader:
     def __init__(
@@ -154,7 +157,7 @@ class PetsDataLoader:
         preprocess_fn: Callable,
         image_size: int,
         batch_size: int,
-        vocab: List[str]=VOCAB,
+        vocab: List[str] = VOCAB,
     ):
         self.artifact_address = artifact_address
         self.dataset_path = self.get_pets()
@@ -194,7 +197,7 @@ class PetsDataLoader:
         return dataset
 
     def get_datasets(self, val_split: float):
-        if val_split>0:
+        if val_split > 0:
             train_images, val_images, train_labels, val_labels = train_test_split(
                 self.image_files, self.labels, test_size=val_split
             )
@@ -219,9 +222,11 @@ def get_model(image_size: int, model_name: str, vocab: List[str]) -> Model:
 
 def train(args):
     with wandb.init(project=args.project, entity=args.entity, group=GROUP, config=args):
+        tf.keras.backend.clear_session()
+        tf.config.optimizer.set_jit(args.enable_xla)
         config = wandb.config
         if args.mixed_precision:
-            mixed_precision.set_global_policy('mixed_float16')
+            mixed_precision.set_global_policy("mixed_float16")
         loader = PetsDataLoader(
             artifact_address=config.artifact_address,
             preprocess_fn=BACKBONE_DICT[config.model_name]["preprocess_fn"],
@@ -253,8 +258,7 @@ def train(args):
             train_dataset,
             validation_data=val_dataset,
             epochs=config.epochs,
-            callbacks=[WandbCallback(save_model=False),
-                       SamplesSec(config.batch_size)],
+            callbacks=[WandbCallback(save_model=False), SamplesSec(config.batch_size)],
         )
 
 
