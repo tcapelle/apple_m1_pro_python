@@ -33,9 +33,10 @@ config_defaults = SimpleNamespace(
     image_size=128,
     model_name="resnet50",
     dataset="PETS",
-    num_workers=0,
+    num_workers=4,
     gpu_name="M1Pro GPU 16 Cores",
-    fp16=False,
+    mixed_precision=False,
+    channels_last=False,
     optimizer="Adam"
 )
 
@@ -52,7 +53,8 @@ def parse_args():
     parser.add_argument('--device', type=str, default=config_defaults.device)
     parser.add_argument('--gpu_name', type=str, default=config_defaults.gpu_name)
     parser.add_argument('--num_workers', type=int, default=config_defaults.num_workers)
-    parser.add_argument('--fp16', action="store_true")
+    parser.add_argument('--mixed_precision', action="store_true")
+    parser.add_argument('--channels_last', action="store_true")
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
     return parser.parse_args()
 
@@ -111,10 +113,15 @@ def get_model(n_out, arch="resnet18", pretrained=True):
     return model
 
 
-def train(config=config_defaults):
-    config.device = "cuda" if torch.cuda.is_available() else config.device
-    config.fp16 = config.device=="cuda" if config.fp16 else config.fp16
+def check_cuda(config):
+    if torch.cuda.is_available():
+        config.device = "cuda"
+        config.mixed_precision = True
+        config.gpu_name = torch.cuda.get_device_name()
+    return config
 
+def train(config=config_defaults):
+    config = check_cuda(config)
     with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=config):
 
         # Copy your config 
@@ -129,6 +136,8 @@ def train(config=config_defaults):
 
         model = get_model(len(train_dl.dataset.vocab), config.model_name)
         model.to(config.device)
+        if config.channels_last:
+            model.to(memory_format=torch.channels_last)
 
         # Make the loss and optimizer
         loss_func = nn.CrossEntropyLoss()
@@ -139,12 +148,15 @@ def train(config=config_defaults):
         example_ct = 0
         step_ct = 0
         for epoch in tqdm(range(config.epochs)):
+            t0 = perf_counter()
             model.train()
             for step, (images, labels) in enumerate(tqdm(train_dl, leave=False)):
                 images, labels = images.to(config.device), labels.to(config.device)
+                if config.channels_last:
+                    images = images.contiguous(memory_format=torch.channels_last)
 
                 ti = perf_counter()
-                if config.fp16:
+                if config.mixed_precision:
                     with autocast():
                         outputs = model(images)
                         train_loss = loss_func(outputs, labels)
@@ -159,14 +171,15 @@ def train(config=config_defaults):
                 metrics = {"train/train_loss": train_loss, 
                            "train/epoch": (step + 1 + (n_steps_per_epoch * epoch)) / n_steps_per_epoch, 
                            "train/example_ct": example_ct,
-                           "samples_per_sec":len(images)/(tf-ti)}
+                           "samples_per_sec":len(images)/(tf-ti),
+                           "samples_per_sec_epoch":example_ct/(tf-t0)}
 
                 if step + 1 < n_steps_per_epoch:
                     # 🐝 Log train metrics to wandb 
                     wandb.log(metrics)
 
                 step_ct += 1
-                
+            
                 
 if __name__ == "__main__":
     args = parse_args()
