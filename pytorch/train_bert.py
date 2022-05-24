@@ -31,7 +31,7 @@ config_defaults = SimpleNamespace(
     dataset="yelp_review_full",
     device="mps",
     gpu_name="M1Pro GPU 16 Cores",
-    num_workers=0,
+    num_workers=4,
     mixed_precision=False,
 )
 

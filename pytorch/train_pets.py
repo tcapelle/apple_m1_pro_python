@@ -33,7 +33,7 @@ config_defaults = SimpleNamespace(
     image_size=128,
     model_name="resnet50",
     dataset="PETS",
-    num_workers=0,
+    num_workers=4,
     gpu_name="M1Pro GPU 16 Cores",
     mixed_precision=False,
     channels_last=False,
@@ -113,10 +113,15 @@ def get_model(n_out, arch="resnet18", pretrained=True):
     return model
 
 
-def train(config=config_defaults):
-    config.device = "cuda" if torch.cuda.is_available() else config.device
-    config.mixed_precision = config.device=="cuda" if config.mixed_precision else config.mixed_precision
+def check_cuda(config):
+    if torch.cuda.is_available():
+        config.device = "cuda"
+        config.mixed_precision = True
+        config.gpu_name = torch.cuda.get_device_name()
 
+
+def train(config=config_defaults):
+    check_cuda(config)
     with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=config):
 
         # Copy your config 
@@ -143,6 +148,7 @@ def train(config=config_defaults):
         example_ct = 0
         step_ct = 0
         for epoch in tqdm(range(config.epochs)):
+            t0 = perf_counter()
             model.train()
             for step, (images, labels) in enumerate(tqdm(train_dl, leave=False)):
                 images, labels = images.to(config.device), labels.to(config.device)
@@ -165,14 +171,15 @@ def train(config=config_defaults):
                 metrics = {"train/train_loss": train_loss, 
                            "train/epoch": (step + 1 + (n_steps_per_epoch * epoch)) / n_steps_per_epoch, 
                            "train/example_ct": example_ct,
-                           "samples_per_sec":len(images)/(tf-ti)}
+                           "samples_per_sec":len(images)/(tf-ti),
+                           "samples_per_sec_epoch":example_ct/(tf-t0)}
 
                 if step + 1 < n_steps_per_epoch:
                     # 🐝 Log train metrics to wandb 
                     wandb.log(metrics)
 
                 step_ct += 1
-                
+            
                 
 if __name__ == "__main__":
     args = parse_args()
