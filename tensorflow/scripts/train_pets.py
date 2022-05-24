@@ -30,7 +30,7 @@ GROUP = "tf"
 
 config_defaults = SimpleNamespace(
     batch_size=64,
-    epochs=1,
+    epochs=5,
     num_experiments=1,
     learning_rate=1e-3,
     validation_split=0.0,
