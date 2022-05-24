@@ -113,7 +113,7 @@ def get_model(n_out, arch="resnet18", pretrained=True):
 
 def train(config=config_defaults):
     config.device = "cuda" if torch.cuda.is_available() else config.device
-    config.fp16 = config.device=="cuda" if config.fp16 else config.fp16
+    config.fp16 = config.device == "cuda"
 
     with wandb.init(project=PROJECT, entity=args.entity, group=GROUP, config=config):
 
