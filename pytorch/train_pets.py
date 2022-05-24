@@ -36,6 +36,7 @@ config_defaults = SimpleNamespace(
     num_workers=0,
     gpu_name="M1Pro GPU 16 Cores",
     mixed_precision=False,
+    channels_last=False,
     optimizer="Adam"
 )
 
@@ -53,6 +54,7 @@ def parse_args():
     parser.add_argument('--gpu_name', type=str, default=config_defaults.gpu_name)
     parser.add_argument('--num_workers', type=int, default=config_defaults.num_workers)
     parser.add_argument('--mixed_precision', action="store_true")
+    parser.add_argument('--channels_last', action="store_true")
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
     return parser.parse_args()
 
@@ -129,6 +131,8 @@ def train(config=config_defaults):
 
         model = get_model(len(train_dl.dataset.vocab), config.model_name)
         model.to(config.device)
+        if config.channels_last:
+            model.to(memory_format=torch.channels_last)
 
         # Make the loss and optimizer
         loss_func = nn.CrossEntropyLoss()
@@ -142,6 +146,8 @@ def train(config=config_defaults):
             model.train()
             for step, (images, labels) in enumerate(tqdm(train_dl, leave=False)):
                 images, labels = images.to(config.device), labels.to(config.device)
+                if config.channels_last:
+                    images = images.contiguous(memory_format=torch.channels_last)
 
                 ti = perf_counter()
                 if config.mixed_precision:
