@@ -20,7 +20,7 @@ import torchvision as tv
 import torchvision.transforms as T
 from torch.cuda.amp import autocast
 
-PROJECT = "M1_TF_vs_PT"
+PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
 GROUP = "pytorch"
 
