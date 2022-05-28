@@ -33,7 +33,7 @@ conda create --name=wandb python wandb pandas numpy matplotlib jupyterlab
 > Note: To work inside the environment, you will need to call `conda activate env_name`.
 
 ## Apple M1 Tensorflow
-Apple has made binaries for tensorflow 2 that supports the GPU inside the M1 processor. This makes training way faster than CPU. You need can grab tensorflow install intruction from the apple website [here](https://developer.apple.com/metal/tensorflow-plugin/) or use the environment files that are provided here. ([tf_apple.yml](tf_apple.yml)). I also provide a [linux env file](tf_linux.yml) in case you want to try.
+Apple has made binaries for tensorflow 2 that supports the GPU inside the M1 processor. This makes training way faster than CPU. You need can grab tensorflow install intruction from the apple website [here](https://developer.apple.com/metal/tensorflow-plugin/) or use the environment files that are provided here. ([tf_apple.yml](scripts/tf_apple.yml)). I also provide a [linux env file](scripts/tf_linux.yml) in case you want to try.
 
 ## Benchmarks
 
