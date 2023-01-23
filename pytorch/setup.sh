@@ -9,9 +9,9 @@ sh Miniforge3-MacOSX-arm64.sh
 
 
 echo "Installing PyTorch"
-conda create --name="metal" python
+conda create --name="metal" "python<3.11"
 conda activate metal
-pip install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu
+conda install pytorch torchvision torchaudio -c pytorch
 pip install wandb tqdm
 
 echo "Installing Huggingface Stack"

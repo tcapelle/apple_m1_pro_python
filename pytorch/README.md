@@ -21,9 +21,11 @@ $ conda create --name="metal" python
 # activate the environment
 $ conda activate metal
 
+# with conda
+conda install pytorch torchvision -c pytorch
 
 # or with pip
-$ pip install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu
+$ pip install torch torchvision
 
 
 # install dependencies of this training script 😎
