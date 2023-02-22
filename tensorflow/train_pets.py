@@ -24,7 +24,7 @@ from tensorflow.keras import mixed_precision
 from tensorflow.keras import layers, losses, optimizers, applications
 
 
-PROJECT = "M1_TF_vs_PT"
+PROJECT = "Pytorch-M1Pro"
 ENTITY = "capecape"
 GROUP = "tf"
 
