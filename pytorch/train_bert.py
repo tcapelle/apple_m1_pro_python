@@ -5,14 +5,9 @@
 @wandbcode{apple_m1_pro}"""
 
 
-import torch, math, wandb, argparse
+import torch, wandb, argparse
 from types import SimpleNamespace
-from dataclasses import dataclass
-import numpy as np
-from tqdm import tqdm
-from time import perf_counter
 from torch.utils.data import DataLoader
-from torch.optim import AdamW
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, default_data_collator
 from datasets import load_dataset
 
