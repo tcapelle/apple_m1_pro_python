@@ -21,6 +21,8 @@ from utils import MicroTrainer
 
 PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
+GROUP = "pt"
+
 
 config_defaults = SimpleNamespace(
     batch_size=4,
@@ -101,7 +103,7 @@ def train_bert(config):
     model = get_model(config.model_name).to(config.device)
 
     trainer = MicroTrainer(model, train_dl, device=config.device, mixed_precision=config.mixed_precision)
-    with wandb.init(project=PROJECT, entity=ENTITY, config=config):
+    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, config=config):
         if not config.inference_only:
             trainer.fit(config.epochs)
         trainer.inference()
