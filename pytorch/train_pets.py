@@ -107,8 +107,8 @@ def get_dataloader(dataset_path, batch_size, image_size=224, num_workers=0, **kw
     return loader
 
 
-def get_model(n_out, arch="resnet18", pretrained=True):
-    model = getattr(tv.models, arch)(pretrained=pretrained)
+def get_model(n_out, arch="resnet50"):
+    model = getattr(tv.models, arch)(weights=tv.models.ResNet50_Weights.IMAGENET1K_V1)
     model.fc = nn.Linear(model.fc.in_features, n_out)
     return model
 
