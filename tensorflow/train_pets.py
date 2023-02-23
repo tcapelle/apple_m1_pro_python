@@ -19,6 +19,7 @@ import wandb
 from wandb.keras import WandbCallback
 
 import tensorflow as tf
+from tensorflow.keras.optimizers import legacy as legacy_optimizers
 from tensorflow.keras import Input, Model
 from tensorflow.keras import mixed_precision
 from tensorflow.keras import layers, losses, optimizers, applications
@@ -36,10 +37,11 @@ config_defaults = SimpleNamespace(
     validation_split=0.0,
     image_size=128,
     model_name="resnet50",
+    dataset="PETS",
     artifact_address="capecape/pytorch-M1Pro/PETS:latest",
     gpu_name="M1Pro GPU 16 Cores",
     mixed_precision=False,
-    optimizer="Adam",
+    optimizer="Adam", # currently an issue forced to legacy optim
 )
 
 
@@ -240,7 +242,7 @@ def train(args):
         )
         model.summary()
 
-        optimizer = getattr(optimizers, config.optimizer)
+        optimizer = getattr(legacy_optimizers, config.optimizer)
 
         model.compile(
             loss=losses.SparseCategoricalCrossentropy(from_logits=True),
