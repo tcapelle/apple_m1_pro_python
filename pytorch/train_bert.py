@@ -23,7 +23,7 @@ PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
 
 config_defaults = SimpleNamespace(
-    batch_size=8,
+    batch_size=4,
     epochs=1,
     num_experiments=1,
     learning_rate=1e-3,
@@ -31,7 +31,7 @@ config_defaults = SimpleNamespace(
     dataset="yelp_review_full",
     device="mps",
     gpu_name="M1Pro GPU 16 Cores",
-    num_workers=4,
+    num_workers=0,
     mixed_precision=False,
 )
 
@@ -51,7 +51,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_dls(model_name="bert-base-cased", dataset_name="yelp_review_full", batch_size=8, num_workers=0, sample_size=1000):
+def get_dls(model_name="bert-base-cased", dataset_name="yelp_review_full", batch_size=8, num_workers=0, sample_size=100):
 
     # download and prepare cc_news dataset
     dataset = load_dataset(dataset_name)
