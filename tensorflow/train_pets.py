@@ -22,7 +22,7 @@ import tensorflow as tf
 from tensorflow.keras.optimizers import legacy as legacy_optimizers
 from tensorflow.keras import Input, Model
 from tensorflow.keras import mixed_precision
-from tensorflow.keras import layers, losses, optimizers, applications
+from tensorflow.keras import layers, losses, applications
 
 
 PROJECT = "Pytorch-M1Pro"
@@ -136,17 +136,6 @@ class SamplesSec(tf.keras.callbacks.Callback):
     def on_train_batch_end(self, batch, logs={}):
         t = perf_counter() - self.batch_train_start
         wandb.log({"samples_per_sec": self.batch_size/t})
-        # self.batch_times.append(t)
-
-    # def on_epoch_end(self, epoch, logs={}):
-        # self.batch_times.sort()
-        # avg_time_per_batch = sum(self.batch_times[0:-self.drop])/(len(self.batch_times)-self.drop)
-        # samples_s_batch = self.batch_size / avg_time_per_batch
-        # wandb.log({"samples_per_batch": samples_s_batch})
-        # self.samples_s += samples_s_batch
-    
-    # def on_train_end(self, logs={}):
-    #     wandb.summary["samples_per_sec"] = self.samples_s/self.params["epochs"]
 
 class PetsDataLoader:
     def __init__(
