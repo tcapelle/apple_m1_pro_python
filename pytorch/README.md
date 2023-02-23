@@ -15,11 +15,11 @@ $ sh Miniforge3-MacOSX-arm64.sh
 Then, create an environment to use Python and PyTorch:
 
 ```bash
-$ conda create --name="metal" "python<3.11"
+$ conda create --name="pt" "python<3.11"
 
 
 # activate the environment
-$ conda activate metal
+$ conda activate pt
 
 # with conda
 conda install pytorch torchvision -c pytorch
@@ -48,7 +48,7 @@ import torch
 
 
 torch.__version__
->>> '1.12.0.dev20220518'
+>>> '1.13.1'
 
 
 torch.tensor([1,2,3], device="mps")
@@ -73,3 +73,32 @@ In your terminal run:
 ```bash
 $ python train_bert.py --gpu_name="M1Pro GPU 16 Cores" #replace with your GPU name
 ```
+
+## Notes
+
+You have many parameters available to override, call the script with the flag `--help` to see them all. To extract the maximum performance of you GPU you may need to adjust `batch_size` and maybe run for longer than 1 `epochs`.
+```
+(pt) thomascapelle@mac-mini pytorch % python train_pets.py --help
+usage: train_pets.py [-h] [--entity ENTITY] [--batch_size BATCH_SIZE] [--epochs EPOCHS]
+                     [--num_experiments NUM_EXPERIMENTS] [--learning_rate LEARNING_RATE]
+                     [--image_size IMAGE_SIZE] [--model_name MODEL_NAME] [--dataset DATASET]
+                     [--device DEVICE] [--gpu_name GPU_NAME] [--num_workers NUM_WORKERS]
+                     [--mixed_precision] [--channels_last] [--optimizer OPTIMIZER]
+
+options:
+  -h, --help            show this help message and exit
+  --entity ENTITY
+  --batch_size BATCH_SIZE
+  --epochs EPOCHS
+  --num_experiments NUM_EXPERIMENTS
+  --learning_rate LEARNING_RATE
+  --image_size IMAGE_SIZE
+  --model_name MODEL_NAME
+  --dataset DATASET
+  --device DEVICE
+  --gpu_name GPU_NAME
+  --num_workers NUM_WORKERS
+  --mixed_precision
+  --channels_last
+  --optimizer OPTIMIZER
+  ```

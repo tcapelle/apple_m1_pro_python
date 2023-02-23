@@ -1,10 +1,10 @@
-name: tf2
+name: tf
 
 channels:
     - conda-forge
 
 dependencies:
-    - python<3.10
+    - python<3.11
     - pip>=19.0
     - jupyter
     - tensorflow>=2.6
@@ -19,6 +19,9 @@ dependencies:
     - requests
     - h5py
     - pyyaml
+    - transformers
+    - datasets
+    - wandb
     - pip: 
         - wandb
         - fastcore

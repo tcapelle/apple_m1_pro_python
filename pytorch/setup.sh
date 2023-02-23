@@ -9,8 +9,8 @@ sh Miniforge3-MacOSX-arm64.sh
 
 
 echo "Installing PyTorch"
-conda create --name="metal" "python<3.11"
-conda activate metal
+conda create --name="pt" "python<3.11"
+conda activate pt
 conda install pytorch torchvision torchaudio -c pytorch
 pip install wandb tqdm
 
