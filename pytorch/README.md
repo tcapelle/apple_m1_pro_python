@@ -15,7 +15,7 @@ $ sh Miniforge3-MacOSX-arm64.sh
 Then, create an environment to use Python and PyTorch:
 
 ```bash
-$ conda create --name="metal" python
+$ conda create --name="metal" "python<3.11"
 
 
 # activate the environment
@@ -29,7 +29,7 @@ $ pip install torch torchvision
 
 
 # install dependencies of this training script 😎
-$ pip install wandb tqdm
+$ pip install wandb tqdm transformers datasets
 ```
 
 For more details on installing Python check [this report](https://wandb.ai/tcapelle/apple_m1_pro/reports/Deep-Learning-on-the-M1-Pro-with-Apple-Silicon---VmlldzoxMjQ0NjY3).
