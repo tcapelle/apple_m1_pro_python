@@ -58,9 +58,9 @@ def parse_args():
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
     return parser.parse_args()
 
-def get_pets():
+def get_pets(version="v3"):
     api = wandb.Api()
-    at = api.artifact('capecape/pytorch-M1Pro/PETS:v1', type='dataset')
+    at = api.artifact(f'capecape/pytorch-M1Pro/PETS:{version}', type='dataset')
     dataset_path = at.download()
     return dataset_path
 
