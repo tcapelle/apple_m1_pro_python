@@ -40,6 +40,9 @@ For more details on installing Python check [this report](https://wandb.ai/tcape
 $ sh setup.sh
 ```
 
+> For Linux, replace the MiniForge binaries with the ones for Linux:
+https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+
 ## Verify your Install
 Run the following in python
 
