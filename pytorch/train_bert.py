@@ -86,6 +86,13 @@ def get_dls(model_name="bert-base-cased", dataset_name="yelp_review_full", batch
 def get_model(model_name="bert-base-cased", num_labels=5):
     return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=num_labels)
 
+def check_cuda(config):
+    if torch.cuda.is_available():
+        config.device = "cuda"
+        config.mixed_precision = True
+        config.gpu_name = torch.cuda.get_device_name()
+    return config
+
 def train_bert(config):
     train_dl, _ = get_dls(
         model_name=config.model_name,
@@ -105,5 +112,6 @@ def train_bert(config):
 
 if __name__ == "__main__":
     args = parse_args()
+    args = check_cuda(args)
     for _ in range(args.num_experiments):
         train_bert(config=args)
