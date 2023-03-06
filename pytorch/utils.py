@@ -32,7 +32,7 @@ def get_apple_hardware():
 def get_apple_gpu_name():
     if platform == "darwin":
         system_info = get_apple_hardware()
-        return f"{system_info['gpu']} {system_info['gpu_cores']} Cores"
+        return f"{system_info['gpu']} GPU {system_info['gpu_cores']} Cores"
     else:
         return None
 
