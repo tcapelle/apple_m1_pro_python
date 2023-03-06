@@ -65,6 +65,7 @@ def parse_args():
         "--learning_rate", type=float, default=config_defaults.learning_rate
     )
     parser.add_argument("--model_name", type=str, default=config_defaults.model_name)
+    parser.add_argument('--dataset', type=str, default=config_defaults.dataset)
     parser.add_argument("--artifact_address", type=str, default=config_defaults.artifact_address)
     parser.add_argument("--gpu_name", type=str, default=config_defaults.gpu_name)
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
