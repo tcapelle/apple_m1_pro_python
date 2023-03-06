@@ -20,6 +20,8 @@ import torchvision as tv
 import torchvision.transforms as T
 from torch.cuda.amp import autocast
 
+from utils import get_apple_gpu_name
+
 PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
 GROUP = "pytorch"
@@ -34,7 +36,7 @@ config_defaults = SimpleNamespace(
     model_name="resnet50",
     dataset="PETS",
     num_workers=4,
-    gpu_name="M1Pro GPU 16 Cores",
+    gpu_name=get_apple_gpu_name(),
     mixed_precision=False,
     channels_last=False,
     optimizer="Adam"

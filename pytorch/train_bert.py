@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, default_data_collator
 from datasets import load_dataset
 
-from utils import MicroTrainer
+from utils import MicroTrainer, get_apple_gpu_name
 
 
 PROJECT = "pytorch-M1Pro"
@@ -27,7 +27,7 @@ config_defaults = SimpleNamespace(
     model_name="bert-base-cased",
     dataset="yelp_review_full",
     device="mps",
-    gpu_name="M1Pro GPU 16 Cores",
+    gpu_name=get_apple_gpu_name(),
     num_workers=0,
     mixed_precision=False,
 )
