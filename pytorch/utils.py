@@ -29,12 +29,13 @@ def get_apple_hardware():
         )
     return system_info
 
-def get_apple_gpu_name():
+def get_gpu_name():
     if platform == "darwin":
         system_info = get_apple_hardware()
         return f"{system_info['gpu']} GPU {system_info['gpu_cores']} Cores"
-    else:
-        return None
+    elif torch.cuda.is_available():
+        return torch.cuda.get_device_name()
+    return None
 
 def to_device(batch, device="cpu"):
     "Move tensors to device"
@@ -98,13 +99,13 @@ class MicroTrainer:
         for epoch in tqdm(range(epochs)):
             self.do_one_epoch(self.train_dl, epoch)
     
-    def inference(self, repeat=10):
+    def inference(self, dl, repeat=10):
         self.model.eval()
-        batch = next(iter(self.train_dl))
+        batch = next(iter(dl))
         N = len(batch["labels"])
         inference_times = []
         for _ in tqdm(range(repeat)):
-            with torch.inference_mode():
+            with torch.no_grad():
                 ti = perf_counter()
                 _ = self.do_one_batch(batch)
                 tf = perf_counter()

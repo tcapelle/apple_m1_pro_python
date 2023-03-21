@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, default_data_collator
 from datasets import load_dataset
 
-from utils import MicroTrainer, get_apple_gpu_name
+from utils import MicroTrainer, get_gpu_name
 
 
 PROJECT = "pytorch-M1Pro"
@@ -27,9 +27,10 @@ config_defaults = SimpleNamespace(
     model_name="bert-base-cased",
     dataset="yelp_review_full",
     device="mps",
-    gpu_name=get_apple_gpu_name(),
+    gpu_name=get_gpu_name(),
     num_workers=0,
     mixed_precision=False,
+    compile=False,
 )
 
 def parse_args():
@@ -45,10 +46,12 @@ def parse_args():
     parser.add_argument('--num_workers', type=int, default=config_defaults.num_workers)
     parser.add_argument('--inference_only', action="store_true")
     parser.add_argument('--mixed_precision', action="store_true")
+    parser.add_argument('--compile', action="store_true")
+    parser.add_argument('--tags', type=str, default=None)
     return parser.parse_args()
 
 
-def get_dls(model_name="bert-base-cased", dataset_name="yelp_review_full", batch_size=8, num_workers=0, sample_size=100):
+def get_dls(model_name="bert-base-cased", dataset_name="yelp_review_full", batch_size=8, num_workers=0, sample_size=512):
 
     # download and prepare cc_news dataset
     dataset = load_dataset(dataset_name)
@@ -94,7 +97,7 @@ def check_cuda(config):
     return config
 
 def train_bert(config):
-    train_dl, _ = get_dls(
+    train_dl, test_loader = get_dls(
         model_name=config.model_name,
         batch_size=config.batch_size,
         num_workers=config.num_workers)
@@ -103,12 +106,15 @@ def train_bert(config):
     config.mixed_precision = config.device=="cuda"
 
     model = get_model(config.model_name).to(config.device)
+    if torch.__version__ >= "2.0" and config.compile:
+        print("Compiling model...")
+        model = torch.compile(model)
 
     trainer = MicroTrainer(model, train_dl, device=config.device, mixed_precision=config.mixed_precision)
-    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, config=config):
+    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, tags=config.tags.split(","), config=config):
         if not config.inference_only:
             trainer.fit(config.epochs)
-        trainer.inference()
+        trainer.inference(test_loader)
 
 if __name__ == "__main__":
     args = parse_args()

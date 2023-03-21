@@ -20,7 +20,7 @@ import torchvision as tv
 import torchvision.transforms as T
 from torch.cuda.amp import autocast
 
-from utils import get_apple_gpu_name
+from utils import get_gpu_name
 
 PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
@@ -36,10 +36,11 @@ config_defaults = SimpleNamespace(
     model_name="resnet50",
     dataset="PETS",
     num_workers=4,
-    gpu_name=get_apple_gpu_name(),
+    gpu_name=get_gpu_name(),
     mixed_precision=False,
     channels_last=False,
-    optimizer="Adam"
+    optimizer="Adam",
+    compile=False,
 )
 
 def parse_args():
@@ -58,6 +59,7 @@ def parse_args():
     parser.add_argument('--mixed_precision', action="store_true")
     parser.add_argument('--channels_last', action="store_true")
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
+    parser.add_argument('--compile', action="store_true")
     return parser.parse_args()
 
 def get_pets(version="v3"):
@@ -119,7 +121,6 @@ def check_cuda(config):
     if torch.cuda.is_available():
         config.device = "cuda"
         config.mixed_precision = True
-        config.gpu_name = torch.cuda.get_device_name()
     return config
 
 def train(config=config_defaults):
@@ -140,6 +141,9 @@ def train(config=config_defaults):
         model.to(config.device)
         if config.channels_last:
             model.to(memory_format=torch.channels_last)
+        if torch.__version__ >= "2.0" and config.compile:
+            print("Compiling model...")
+            model = torch.compile(model)
 
         # Make the loss and optimizer
         loss_func = nn.CrossEntropyLoss()
