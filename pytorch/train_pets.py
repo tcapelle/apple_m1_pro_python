@@ -44,6 +44,7 @@ config_defaults = SimpleNamespace(
     compile=False,
     tags=None,
     dl="full",
+    syncro=False,
 )
 
 def parse_args():
@@ -65,6 +66,7 @@ def parse_args():
     parser.add_argument('--compile', action="store_true")
     parser.add_argument('--tags', type=str, default=None)
     parser.add_argument('--dl', type=str, default=config_defaults.dl)
+    parser.add_argument('--syncro', action="store_true")
     return parser.parse_args()
 
 
@@ -138,6 +140,8 @@ def train(config):
                 train_loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
+                if config.syncro:
+                    torch.cuda.synchronize(device="cuda")
                 tf_with_dataloader = perf_counter() - tf
                 tf = perf_counter()
 
