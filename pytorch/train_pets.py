@@ -21,7 +21,7 @@ import torchvision.transforms as T
 from torch.cuda.amp import autocast
 
 from utils import get_gpu_name
-from pets import get_pets_dataloader
+from pets import get_pets_dataloader, get_fast_pets_dataloader
 
 PROJECT = "pt2"
 ENTITY = "capecape"
@@ -43,6 +43,7 @@ config_defaults = SimpleNamespace(
     optimizer="Adam",
     compile=False,
     tags=None,
+    dl="full",
 )
 
 def parse_args():
@@ -63,6 +64,7 @@ def parse_args():
     parser.add_argument('--optimizer', type=str, default=config_defaults.optimizer)
     parser.add_argument('--compile', action="store_true")
     parser.add_argument('--tags', type=str, default=None)
+    parser.add_argument('--dl', type=str, default=config_defaults.dl)
     return parser.parse_args()
 
 
@@ -76,6 +78,8 @@ def check_cuda(config):
     if torch.cuda.is_available():
         config.device = "cuda"
         config.mixed_precision = True
+        config.pt_version = torch.__version__
+        config.cuda_version = torch.version.cuda
     return config
 
 def train(config):
@@ -88,10 +92,16 @@ def train(config):
         config = wandb.config
 
         # Get the data
-        train_dl = get_pets_dataloader(batch_size=config.batch_size, 
-                                       image_size=config.image_size,
-                                       num_workers=config.num_workers)
-        n_steps_per_epoch = math.ceil(len(train_dl.dataset) / config.batch_size)
+        if not config.dl == "one_batch":
+            train_dl = get_pets_dataloader(batch_size=config.batch_size, 
+                                        image_size=config.image_size,
+                                        num_workers=config.num_workers)
+        else:
+            train_dl = get_fast_pets_dataloader(batch_size=config.batch_size, 
+                                                image_size=config.image_size,
+                                                num_workers=0)      
+
+        n_steps_per_epoch = len(train_dl)
 
         model = get_model(len(train_dl.dataset.vocab), config.model_name)
         model.to(config.device)

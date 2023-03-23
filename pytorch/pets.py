@@ -57,24 +57,26 @@ def get_pets_dataloader(batch_size, image_size=224, num_workers=0, **kwargs):
     loader = torch.utils.data.DataLoader(ds, 
                                          batch_size=batch_size,
                                          pin_memory=True,
-                                         num_workers=num_workers,
+                                         num_workers=int(num_workers),
                                          **kwargs)
     return loader
 
 class OneBatchDataLoader:
-    def __init__(self, dl, N=10):
+    def __init__(self, dl, N=100):
         self.dl = dl
         self.batch = next(iter(dl))
         self.N = N
-    
+        self.dataset = dl.dataset
+
     def __iter__(self):
-        yield self.batch
+        for i in range(self.N):
+            yield self.batch
 
     def __len__(self):
         return self.N
 
 
-def get_fast_pets_dataloader(batch_size, image_size=224, num_workers=0, **kwargs):
+def get_fast_pets_dataloader(batch_size, image_size=224, num_workers=0, N=100, **kwargs):
     "Get a training dataloader"
-    dl = get_pet_dataloader(batch_size, image_size=image_size, num_workers=num_workers, **kwargs)
-    return OneBatchDataLoader(dl)
+    dl = get_pets_dataloader(batch_size, image_size=image_size, num_workers=num_workers, **kwargs)
+    return OneBatchDataLoader(dl, N=N)
