@@ -56,6 +56,7 @@ class MicroTrainer:
     test_dl: DataLoader=None
     device: str="mps"
     mixed_precision: bool=False
+    syncro: bool=False
 
     def __post_init__(self):
         self.model = self.model.to(self.device)
@@ -74,18 +75,23 @@ class MicroTrainer:
         return loss
 
     def do_one_epoch(self, dl, epoch):
+        tf=perf_counter()
         for step, batch in enumerate(tqdm(dl, leave=False)):
             ti = perf_counter()
             self.optimizer.zero_grad()
             loss = self.do_one_batch(batch)
             loss.backward()
             self.optimizer.step()
+            if self.syncro:
+                torch.cuda.synchronize(device="cuda")
+            tf_with_dataloader = perf_counter() - tf
             tf = perf_counter()
             self.example_ct += len(batch["labels"])
             metrics = {"train/train_loss": loss, 
                         "train/epoch": (step + 1 + (self.n_steps_per_epoch * epoch)) / self.n_steps_per_epoch, 
                         "train/example_ct": self.example_ct,
-                        "sqe_per_sec":len(batch["labels"])/(tf-ti)}
+                        "seq_per_sec":len(batch["labels"])/(tf-ti),
+                        "seq_per_sec_dl":len(batch["labels"])/tf_with_dataloader,}
             if step + 1 < self.n_steps_per_epoch:
                 # 🐝 Log train metrics to wandb 
                 wandb.log(metrics)

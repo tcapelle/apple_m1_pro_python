@@ -14,13 +14,13 @@ from datasets import load_dataset
 from utils import MicroTrainer, get_gpu_name
 
 
-PROJECT = "pytorch-M1Pro"
+PROJECT = "pt2"
 ENTITY = "capecape"
-GROUP = "pt"
+GROUP = "transformers"
 
 
 config_defaults = SimpleNamespace(
-    batch_size=4,
+    batch_size=16,
     epochs=1,
     num_experiments=1,
     learning_rate=1e-3,
@@ -28,8 +28,10 @@ config_defaults = SimpleNamespace(
     dataset="yelp_review_full",
     device="mps",
     gpu_name=get_gpu_name(),
-    num_workers=0,
+    num_workers=8,
     mixed_precision=False,
+    syncro=False,
+    inference_only=False,
     compile=False,
 )
 
@@ -48,10 +50,11 @@ def parse_args():
     parser.add_argument('--mixed_precision', action="store_true")
     parser.add_argument('--compile', action="store_true")
     parser.add_argument('--tags', type=str, default=None)
+    parser.add_argument('--syncro', action="store_true")
     return parser.parse_args()
 
 
-def get_dls(model_name="bert-base-cased", dataset_name="yelp_review_full", batch_size=8, num_workers=0, sample_size=512):
+def get_dls(model_name="bert-base-cased", dataset_name="yelp_review_full", batch_size=8, num_workers=0, sample_size=2048):
 
     # download and prepare cc_news dataset
     dataset = load_dataset(dataset_name)
@@ -93,7 +96,8 @@ def check_cuda(config):
     if torch.cuda.is_available():
         config.device = "cuda"
         config.mixed_precision = True
-        config.gpu_name = torch.cuda.get_device_name()
+        config.pt_version = torch.__version__
+        config.cuda_version = torch.version.cuda
     return config
 
 def train_bert(config):
@@ -102,16 +106,15 @@ def train_bert(config):
         batch_size=config.batch_size,
         num_workers=config.num_workers)
 
-    config.device = "cuda" if torch.cuda.is_available() else config.device
-    config.mixed_precision = config.device=="cuda"
-
     model = get_model(config.model_name).to(config.device)
     if torch.__version__ >= "2.0" and config.compile:
         print("Compiling model...")
         model = torch.compile(model)
 
-    trainer = MicroTrainer(model, train_dl, device=config.device, mixed_precision=config.mixed_precision)
-    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, tags=config.tags.split(","), config=config):
+    trainer = MicroTrainer(model, train_dl, device=config.device, mixed_precision=config.mixed_precision, syncro=config.syncro)
+    tags = [f"pt{torch.__version__}", f"cuda{torch.version.cuda}"] + (config.tags.split(",") if config.tags is not None else [])
+    with wandb.init(project=PROJECT, entity=ENTITY, group=GROUP, tags=tags, config=config):
+        config = wandb.config
         if not config.inference_only:
             trainer.fit(config.epochs)
         trainer.inference(test_loader)
