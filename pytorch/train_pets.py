@@ -23,7 +23,7 @@ from torch.cuda.amp import autocast
 from utils import get_gpu_name
 from pets import get_pets_dataloader, get_fast_pets_dataloader
 
-PROJECT = "pt2"
+PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
 GROUP = "pytorch"
 

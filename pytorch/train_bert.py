@@ -14,9 +14,9 @@ from datasets import load_dataset
 from utils import MicroTrainer, get_gpu_name
 
 
-PROJECT = "pt2"
+PROJECT = "pytorch-M1Pro"
 ENTITY = "capecape"
-GROUP = "transformers"
+GROUP = "pytorch"
 
 
 config_defaults = SimpleNamespace(
