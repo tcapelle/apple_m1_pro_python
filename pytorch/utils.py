@@ -90,7 +90,7 @@ class MicroTrainer:
             metrics = {"train/train_loss": loss, 
                         "train/epoch": (step + 1 + (self.n_steps_per_epoch * epoch)) / self.n_steps_per_epoch, 
                         "train/example_ct": self.example_ct,
-                        "seq_per_sec":len(batch["labels"])/(tf-ti),
+                        "sqe_per_sec":len(batch["labels"])/(tf-ti),
                         "seq_per_sec_dl":len(batch["labels"])/tf_with_dataloader,}
             if step + 1 < self.n_steps_per_epoch:
                 # 🐝 Log train metrics to wandb 
